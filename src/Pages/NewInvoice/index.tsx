@@ -2,7 +2,7 @@ import React from "react";
 import { Input } from "@/components/ui/input";
 import { IInvoiceItem, IInvoiceFields } from "@/lib/types";
 import { Button } from "@/components/ui/button";
-import { Eye, Loader, Trash, X } from "lucide-react";
+import { CircleAlert, Eye, Loader, OctagonAlert, Trash, X } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import * as yup from 'yup';
@@ -17,6 +17,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import Preview from "./Preview";
+import { cn } from "@/lib/utils";
 
 
 const NewInvoice = () => {
@@ -29,7 +30,6 @@ const NewInvoice = () => {
     const newItems = [...invoiceItems]
     newItems[i] = { ...newItems[i], [field]: value }
     setInvoiceItems(newItems);
-    // sessionStorage.setItem("invoiceItems", JSON.stringify(newItems));
   }
 
   const schema = yup.object().shape({
@@ -65,10 +65,6 @@ const NewInvoice = () => {
       setPreview(true);
     }, 500);
   }
-
-  React.useEffect(() => {
-    console.log({ formErrors });
-  }, [formErrors]);
 
   const addItem = () => {
     if (invoiceItems.length === 0) {
@@ -107,7 +103,7 @@ const NewInvoice = () => {
     setValue("logo", "/assets/200x144.svg");
     setValue("discount", 0);
     setValue("tax", 7.5);
-    setValue("currency", "NGN");
+    setValue("currency", sessionStorage.getItem("currency") || '');
     setValue("billerName", sessionStorage.getItem("billerName") || '');
     setValue("billerAddress", sessionStorage.getItem("billerAddress") || '');
     setValue("billerEmail", sessionStorage.getItem("billerEmail") || '');
@@ -119,6 +115,7 @@ const NewInvoice = () => {
     // const dueDate = sessionStorage.getItem("dueDate");
     // setValue("billDate", billDate ? new Date(billDate) : new Date());
     // setValue("dueDate", dueDate ? new Date(dueDate) : new Date());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -138,23 +135,24 @@ const NewInvoice = () => {
     <section>
       <form autoComplete="off" onSubmit={handleSubmit(submit)}>
         <div className="container px-4 py-8">
-          <div className="flex gap-4 justify-between">
+          <div className="flex flex-col sm:flex-row gap-8 sm:gap-4 justify-between">
             <div className="space-y-0">
-              <h3 className="text-2xl font-semibold mb-8">Invoice</h3>
+              <h3 className="text-5xl font-semibold mb-8">Invoice</h3>
               <Input {...register("invoiceNumber")} />
             </div>
-            <label htmlFor="logo" className="cursor-pointer inline-block relative group max-w-[200px] max-h-[144px] shadow-md">
-              <Button onClick={() => setValue("logo", "/assets/200x144.svg")} variant="destructive" className="absolute -top-2 -right-2 p-0 h-6 w-6 rounded-full z-10"><X /></Button>
-              <img src={watch("logo")} alt="logo" className="hover:opacity-70 transition-all duration-300 rounded-md max-w-full max-h-full" />
+            <label htmlFor="logo" className="cursor-pointer inline-block relative w-[150px] h-[108px]">
+              <Button type="button" onClick={() => setValue("logo", "/assets/200x144.svg")} variant="destructive" className="absolute -top-2 -right-2 p-0 h-6 w-6 rounded-full z-10"><X /></Button>
+              <img src={watch("logo")} alt="logo" className="hover:opacity-70 transition-all duration-300 rounded-md w-full h-auto" />
               <Input type="file" accept=".png, .jpg, .jpeg, .svg, .webp" {...register("logo", { onChange: handleImageUpload })} className="hidden" id="logo" />
             </label>
           </div>
-          <div className="grid grid-cols-3 gap-4 border border-slate-100 rounded-md p-4 mt-4">
-            <div className="space-y-2">
-              <Label>Biller name</Label>
+          <div className="grid sm:grid-cols-3 gap-4 sm:border sm:border-slate-100 rounded-md sm:p-4 mt-12">
+            <div className="">
+              <Label className={cn("inline-block mb-2", formErrors.billerName && "text-destructive")}>Biller name</Label>
               <Input className="shadow-sm" {...register("billerName", {
                 onBlur: e => sessionStorage.setItem("billerName", e.target.value)
               })} placeholder="Biller name" />
+              {formErrors.billerName && <p className="text-destructive text-xs flex items-center mt-1"><OctagonAlert className="h-4" /> {formErrors.billerName.message}</p>}
             </div>
             <div className="space-y-2">
               <Label>Biller Address</Label>
@@ -197,6 +195,12 @@ const NewInvoice = () => {
                 onBlur: e => sessionStorage.setItem("dueDate", e.target.value)
               })} />
             </div>
+            <div className="space-y-2">
+              <Label>Currency</Label>
+              <Input className="shadow-sm" {...register("currency", {
+                onBlur: e => sessionStorage.setItem("currency", e.target.value)
+              })} />
+            </div>
           </div>
           <div className="mt-8">
             <Table>
@@ -204,7 +208,7 @@ const NewInvoice = () => {
                 <TableRow>
                   <TableHead className="w-full">Iten Description</TableHead>
                   <TableHead className="text-center min-w-20">Quantity</TableHead>
-                  <TableHead className="text-right min-w-28">Rate</TableHead>
+                  <TableHead className="text-right min-w-28 pr-8">Rate</TableHead>
                   <TableHead className="text-right min-w-40">Total</TableHead>
                   <TableHead className="text-center">Action</TableHead>
                 </TableRow>
@@ -236,13 +240,14 @@ const NewInvoice = () => {
                         </TableCell>
                         <TableCell className="">
                           <Input
-                            name="rate" value={item.rate} className='text-right border-none'
+                            name="rate" value={item.rate} type="number"
+                            className='text-right border-none'
                             onChange={(e) => handleChange(index, "rate", e.target.value)}
                             onBlur={() => sessionStorage.setItem("invoiceItems", JSON.stringify(invoiceItems))}
                           />
                         </TableCell>
-                        <TableCell className="">
-                          <Input value={(item.quantity * item.rate).toLocaleString()} className='text-right border-none' disabled />
+                        <TableCell className="text-right">
+                          {(item.quantity * item.rate).toLocaleString()}
                         </TableCell>
                         <TableCell className="">
                           <Button variant="destructive" onClick={() => removeItem(index)}>
@@ -254,18 +259,18 @@ const NewInvoice = () => {
                 }
               </TableBody>
             </Table>
-            <div className="border-t pt-8 flex items-start justify-between">
-              <div className="flex-1">
+            <div className="border-t pt-8 flex flex-col sm:flex-row items-start justify-between">
+              <div className="sm:flex-1 w-full">
                 <Button type="button" onClick={addItem} className="bg-muted" variant="outline">Add item</Button>
-                <div className="mt-8 w-full space-y-2">
+                <div className="hidden sm:block mt-8 w-full space-y-2">
                   <Label htmlFor="notes" className="text-slate-500 font-semibold">Notes</Label>
                   <Textarea {...register("notes", {
                     onBlur: e => sessionStorage.setItem("notes", e.target.value)
                   })} id="notes" placeholder="Enter additional notes" className="resize-none" />
                 </div>
               </div>
-              <div className="flex-1" />
-              <div className="flex-1 space-y-2">
+              <div className="sm:flex-1" />
+              <div className="flex-1 space-y-2 w-full sm:mt-0 mt-8">
                 <div className="flex gap-6 justify-between items-center">
                   <h3>Sub total</h3>
                   <p>{total.toLocaleString("en-US", { maximumFractionDigits: 2, minimumFractionDigits: 2 })}</p>
@@ -293,14 +298,19 @@ const NewInvoice = () => {
                 </div>
                 <div className="flex gap-6 justify-between border-t pt-2">
                   <h3 className="font-semibold">Total</h3>
-                  <p>{((total - (watch("discount"))) * (1 + (watch("tax") ?? 0) / 100)).toLocaleString("en-US", { maximumFractionDigits: 2, minimumFractionDigits: 2 })}</p>
-                  {/* <p>{((total - (watch("discount"))) * (1 + (watch("tax") ?? 0) / 100)).toLocaleString("en-US", { style: "currency", currency: "NGN" })}</p> */}
+                  <p>{watch("currency")} {((total - (watch("discount"))) * (1 + (watch("tax") ?? 0) / 100)).toLocaleString("en-US", { maximumFractionDigits: 2, minimumFractionDigits: 2 })}</p>
                 </div>
+              </div>
+              <div className="mt-8 w-full space-y-2 block sm:hidden">
+                <Label htmlFor="notes" className="text-slate-500 font-semibold">Notes</Label>
+                <Textarea {...register("notes", {
+                  onBlur: e => sessionStorage.setItem("notes", e.target.value)
+                })} id="notes" placeholder="Enter additional notes" className="resize-none" />
               </div>
             </div>
             <div className="py-8 flex justify-end">
-              <Button type="submit" className="px-8 h-12 w-[144px]" disabled={loading}>
-                {loading ? <Loader className="snimate-spin" /> : <><Eye className="mr-1" /> Preview</>}
+              <Button type="submit" className="px-8 h-12 w-full sm:w-[144px]" disabled={loading}>
+                {loading ? <Loader className="animate-spin" /> : <><Eye className="mr-1" /> Preview</>}
               </Button>
             </div>
           </div>
