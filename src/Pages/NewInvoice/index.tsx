@@ -2,7 +2,7 @@ import React from "react";
 import { Input } from "@/components/ui/input";
 import { IInvoiceItem, IInvoiceFields } from "@/lib/types";
 import { Button } from "@/components/ui/button";
-import { CircleAlert, Eye, Loader, OctagonAlert, Trash, X } from "lucide-react";
+import { Eye, Loader, OctagonAlert, Trash, X } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import * as yup from 'yup';
@@ -17,7 +17,6 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import Preview from "./Preview";
-import { cn } from "@/lib/utils";
 
 
 const NewInvoice = () => {
@@ -39,10 +38,10 @@ const NewInvoice = () => {
     billerAddress: yup.string().required("Biller address is required"),
     billerEmail: yup.string().required("Biller email is required"),
     customerName: yup.string().required("Customer name is required"),
-    customerAddress: yup.string().required("Customer address is required"),
-    customerEmail: yup.string().required("Customer email is required"),
-    billDate: yup.date().typeError("Incorrect format").required("Required"),
-    dueDate: yup.date().typeError("Incorrect format").required("Required"),
+    customerAddress: yup.string(),
+    customerEmail: yup.string().email("Invalid email input"),
+    billDate: yup.date().typeError("Invalid date").required("Required"),
+    dueDate: yup.date().typeError("Invalid date").required("Required"),
     tax: yup.number().typeError("Entry must be a number").required("Tax field is required"),
     shipping: yup.number().typeError("Entry must be a number"),
     discount: yup.number().typeError("Entry must be a number").required("Required"),
@@ -54,6 +53,8 @@ const NewInvoice = () => {
   })
   const form = useForm({ resolver: yupResolver(schema) });
   const { handleSubmit, register, setValue, watch, formState: { errors: formErrors } } = form;
+
+  console.log({formErrors});
 
   const [loading, setLoading] = React.useState<boolean>(false);
   const [preview, setPreview] = React.useState<boolean>(false);
@@ -148,58 +149,67 @@ const NewInvoice = () => {
           </div>
           <div className="grid sm:grid-cols-3 gap-4 sm:border sm:border-slate-100 rounded-md sm:p-4 mt-12">
             <div className="">
-              <Label className={cn("inline-block mb-2", formErrors.billerName && "text-destructive")}>Biller name</Label>
+              <Label className="inline-block mb-2">Biller name</Label>
               <Input className="shadow-sm" {...register("billerName", {
                 onBlur: e => sessionStorage.setItem("billerName", e.target.value)
               })} placeholder="Biller name" />
               {formErrors.billerName && <p className="text-destructive text-xs flex items-center mt-1"><OctagonAlert className="h-4" /> {formErrors.billerName.message}</p>}
             </div>
-            <div className="space-y-2">
-              <Label>Biller Address</Label>
+            <div>
+              <Label className="inline-block mb-2">Biller Address</Label>
               <Input className="shadow-sm" {...register("billerAddress", {
                 onBlur: e => sessionStorage.setItem("billerAddress", e.target.value)
               })} placeholder="Biller address" />
+              {formErrors.billerAddress && <p className="text-destructive text-xs flex items-center mt-1"><OctagonAlert className="h-4" /> {formErrors.billerAddress.message}</p>}
             </div>
-            <div className="space-y-2">
-              <Label>Biller Email</Label>
+            <div>
+              <Label className="inline-block mb-2">Biller Email</Label>
               <Input className="shadow-sm" {...register("billerEmail", {
                 onBlur: e => sessionStorage.setItem("billerEmail", e.target.value)
               })} placeholder="Biller Email" />
+              {formErrors.billerEmail && <p className="text-destructive text-xs flex items-center mt-1"><OctagonAlert className="h-4" /> {formErrors.billerEmail.message}</p>}
             </div>
-            <div className="space-y-2">
-              <Label>Client Name</Label>
+            <div>
+              <Label className="inline-block mb-2">Client Name</Label>
               <Input className="shadow-sm" {...register("customerName", {
                 onBlur: e => sessionStorage.setItem("customerName", e.target.value)
-              })} placeholder="Client company name" /></div>
-            <div className="space-y-2">
-              <Label>Client Address</Label>
+              })} placeholder="Client company name" />
+              {formErrors.customerName && <p className="text-destructive text-xs flex items-center mt-1"><OctagonAlert className="h-4" /> {formErrors.customerName.message}</p>}
+            </div>
+            <div>
+              <Label className="inline-block mb-2">Client Address</Label>
               <Input className="shadow-sm" {...register("customerAddress", {
                 onBlur: e => sessionStorage.setItem("customerAddress", e.target.value)
               })} placeholder="Client address" />
+              {formErrors.customerAddress && <p className="text-destructive text-xs flex items-center mt-1"><OctagonAlert className="h-4" /> {formErrors.customerAddress.message}</p>}
             </div>
-            <div className="space-y-2">
-              <Label>Client Email</Label>
+            <div>
+              <Label className="inline-block mb-2">Client Email</Label>
               <Input className="shadow-sm" {...register("customerEmail", {
                 onBlur: e => sessionStorage.setItem("customerEmail", e.target.value)
               })} placeholder="Client Email" />
+              {formErrors.customerEmail && <p className="text-destructive text-xs flex items-center mt-1"><OctagonAlert className="h-4" /> {formErrors.customerEmail.message}</p>}
             </div>
-            <div className="space-y-2">
-              <Label>Invoice date</Label>
+            <div>
+              <Label className="inline-block mb-2">Invoice date</Label>
               <Input className="shadow-sm" type="date" {...register("billDate", {
                 onBlur: e => sessionStorage.setItem("billDate", e.target.value)
               })} />
+              {formErrors.billDate && <p className="text-destructive text-xs flex items-center mt-1"><OctagonAlert className="h-4" /> {formErrors.billDate.message}</p>}
             </div>
-            <div className="space-y-2">
-              <Label>Invoice Due Date</Label>
+            <div>
+              <Label className="inline-block mb-2">Invoice Due Date</Label>
               <Input className="shadow-sm" type="date" {...register("dueDate", {
                 onBlur: e => sessionStorage.setItem("dueDate", e.target.value)
               })} />
+              {formErrors.dueDate && <p className="text-destructive text-xs flex items-center mt-1"><OctagonAlert className="h-4" /> {formErrors.dueDate.message}</p>}
             </div>
-            <div className="space-y-2">
-              <Label>Currency</Label>
+            <div>
+              <Label className="inline-block mb-2">Currency</Label>
               <Input className="shadow-sm" {...register("currency", {
                 onBlur: e => sessionStorage.setItem("currency", e.target.value)
               })} />
+              {formErrors.currency && <p className="text-destructive text-xs flex items-center mt-1"><OctagonAlert className="h-4" /> {formErrors.currency.message}</p>}
             </div>
           </div>
           <div className="mt-8">

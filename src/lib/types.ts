@@ -23,7 +23,7 @@ export interface IInvoiceFields {
   billerAddress: string;
   billerEmail: string;
   customerName: string;
-  customerAddress: string;
+  customerAddress?: string;
   customerEmail?: string;
   billDate: Date;
   dueDate: Date;
@@ -34,5 +34,4 @@ export interface IInvoiceFields {
   dueBalance?: number;
   currency: string;
   notes?: string;
-  terms?: string;
 }
