@@ -20,14 +20,12 @@ function App() {
       element: <Login />
     },
     {
-      path: "/new-invoice",
+      path: "/invoice",
       element: <NewInvoice />
     },
   ]);
 
-  return (
-    <RouterProvider router={router} />
-  )
+  return <RouterProvider router={router} />
 }
 
 export default App;

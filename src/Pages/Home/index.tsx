@@ -19,9 +19,10 @@ const Home = () => {
               </p>
             </div>
             <div className="space-x-4">
-              <Link to="/new-invoice">
+              <Link to="/invoice">
                 <Button className="bg-yellow-400 text-gray-900 hover:bg-yellow-500">Create Invoice</Button>
               </Link>
+              <section id="start" />
               {/* <Button variant="outline" className="bg-white text-purple-600 hover:bg-gray-100">
                   Watch Demo
                 </Button> */}
@@ -59,7 +60,7 @@ const Home = () => {
           </div>
         </div>
       </section>
-      <section className="w-full py-12 md:py-24 lg:py-32 bg-gray-100">
+      {/* <section className="w-full py-12 md:py-24 lg:py-32 bg-gray-100">
         <div className="container px-4 md:px-6">
           <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl text-center mb-12 text-gray-900">
             What Our Users Say
@@ -79,7 +80,7 @@ const Home = () => {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
       <section className="w-full py-12 md:py-24 lg:py-32 bg-gradient-to-b from-indigo-600 to-purple-600">
         <div className="container px-4 md:px-6">
           <div className="flex flex-col items-center space-y-4 text-center">
@@ -92,7 +93,7 @@ const Home = () => {
               </p>
             </div>
             <div className="w-full max-w-sm space-y-2">
-              <Link to="/auth/register" className='inline-block'>
+              <Link to="/invoice" className='inline-block'>
                 <Button className="bg-yellow-400 text-gray-900 hover:bg-yellow-500" type="submit">
                   Get Started
                 </Button>

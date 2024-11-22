@@ -10,18 +10,12 @@ const Header = () => {
           <span className="ml-2 text-lg font-bold text-white">InvoiceMaker</span>
         </Link>
         <nav className="ml-auto flex gap-4 sm:gap-6">
-          <Link className="text-sm font-medium hover:underline text-white" to="#">
+          <a className="text-sm font-medium hover:underline text-white" href="#start">
             Features
-          </Link>
-          <Link className="text-sm font-medium hover:underline text-white" to="#">
-            Pricing
-          </Link>
-          <Link className="text-sm font-medium hover:underline text-white" to="#">
-            About
-          </Link>
-          <Link className="text-sm font-medium hover:underline text-white" to="#">
-            Contact
-          </Link>
+          </a>
+          {/* <Link className="text-sm font-medium hover:underline text-white" to="#">Pricing</Link> */}
+          {/* <Link className="text-sm font-medium hover:underline text-white" to="#">About</Link> */}
+          <a className="text-sm font-medium hover:underline text-white" href="mailto:michaelsondev@gmail.com">Contact</a>
         </nav>
       </div>
     </header>

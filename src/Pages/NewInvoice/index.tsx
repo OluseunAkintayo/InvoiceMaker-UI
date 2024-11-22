@@ -54,8 +54,6 @@ const NewInvoice = () => {
   const form = useForm({ resolver: yupResolver(schema) });
   const { handleSubmit, register, setValue, watch, formState: { errors: formErrors } } = form;
 
-  console.log({formErrors});
-
   const [loading, setLoading] = React.useState<boolean>(false);
   const [preview, setPreview] = React.useState<boolean>(false);
 
@@ -118,6 +116,8 @@ const NewInvoice = () => {
     // setValue("dueDate", dueDate ? new Date(dueDate) : new Date());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  console.log(watch());
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files && e.target.files[0];
@@ -213,14 +213,15 @@ const NewInvoice = () => {
             </div>
           </div>
           <div className="mt-8">
+            <h3 className="font-semibold text-slate-700 sm:hidden">Invoice Items</h3>
             <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-full">Iten Description</TableHead>
-                  <TableHead className="text-center min-w-20">Quantity</TableHead>
-                  <TableHead className="text-right min-w-28 pr-8">Rate</TableHead>
-                  <TableHead className="text-right min-w-40">Total</TableHead>
-                  <TableHead className="text-center">Action</TableHead>
+              <TableHeader className="hidden sm:contents">
+                <TableRow className="bg-slate-700">
+                  <TableHead className="w-full text-white">Iten Description</TableHead>
+                  <TableHead className="text-center min-w-20 text-white">Quantity</TableHead>
+                  <TableHead className="text-right min-w-28 pr-8 text-white">Rate</TableHead>
+                  <TableHead className="text-right min-w-40 text-white">Total</TableHead>
+                  <TableHead className="text-center text-white">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -235,7 +236,8 @@ const NewInvoice = () => {
                         <TableCell className="">
                           <Input
                             onChange={(e) => handleChange(index, "description", e.target.value)}
-                            name="description" value={item.description} className='border-none' placeholder='Item description'
+                            name="description" value={item.description} placeholder='Item description'
+                            className='border-none w-[200px] sm:w-full'
                             onBlur={() => sessionStorage.setItem("invoiceItems", JSON.stringify(invoiceItems))}
                           />
                         </TableCell>
@@ -308,7 +310,7 @@ const NewInvoice = () => {
                 </div>
                 <div className="flex gap-6 justify-between border-t pt-2">
                   <h3 className="font-semibold">Total</h3>
-                  <p>{watch("currency")} {((total - (watch("discount"))) * (1 + (watch("tax") ?? 0) / 100)).toLocaleString("en-US", { maximumFractionDigits: 2, minimumFractionDigits: 2 })}</p>
+                  <p>{watch("currency")} {(total * (1 + (watch("tax") * 0.01)) - watch("discount")).toLocaleString("en-US", { maximumFractionDigits: 2, minimumFractionDigits: 2 })}</p>
                 </div>
               </div>
               <div className="mt-8 w-full space-y-2 block sm:hidden">

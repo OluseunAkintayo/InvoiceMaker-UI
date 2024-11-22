@@ -5,7 +5,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Button } from '@/components/ui/button';
 import { IInvoiceFields, IInvoiceItem } from "@/lib/types";
-import { Download, X } from 'lucide-react';
+import { Download, FileText, X } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -29,28 +29,41 @@ function Preview({ open, close, invoiceFields, total, invoiceItems }: IPreview) 
   const contentRef = React.useRef<HTMLDivElement>(null);
   const printToPDF = useReactToPrint({
     contentRef,
-    onAfterPrint: () => {
-      sessionStorage.clear();
-      window.location.reload();
-    },
+    // onAfterPrint: () => {
+    //   sessionStorage.clear();
+    //   window.location.reload();
+    // },
   });
+
+  console.log({invoiceFields});
+
+  const [pending, setPending] = React.useState<boolean>(false);
+
+  const newInvoice = () => {
+    sessionStorage.clear();
+    setPending(true);
+    setTimeout(() => window.location.reload(), 2000);
+  }
 
   return (
     <>
       <AlertDialog open={open} onOpenChange={close}>
         <AlertDialogContent className='min-w-full shadow-none border-0 h-[100dvh] overflow-y-auto'>
-          <div className="mt-8 max-w-screen-xl mx-auto">
+          <div className="mt-8 w-full max-w-screen-xl mx-auto">
             <div id="invoice" ref={contentRef} className="p-4 scale-95">
               <div className="flex gap-4 justify-between items-center">
                 <div>
-                  <h3 className="text-5xl font-semibold mb-4 text-slate-700">Invoice</h3>
+                  <div className="flex items-start gap-2">
+                    <span className="p-3 bg-slate-700 rounded-tr-md rounded-bl-md"><FileText className="text-white" /></span>
+                    <h3 className="text-5xl font-semibold mb-4 text-slate-700">Invoice</h3>
+                  </div>
                   <p>{invoiceFields.invoiceNumber}</p>
                 </div>
                 <div>
                   {invoiceFields.logo !== "/assets/200x144.svg" && <img src={invoiceFields.logo} alt="logo" className="rounded-md max-w-[100px]" />}
                 </div>
               </div>
-              <div className="grid grid-cols-3 gap-8 mt-4">
+              <div className="grid grid-cols-2 gap-8 mt-4">
                 <div className="space-y-2">
                   <h3 className="font-bold text-xl text-slate-700">Biller:</h3>
                   <div>
@@ -76,7 +89,7 @@ function Preview({ open, close, invoiceFields, total, invoiceItems }: IPreview) 
               </div>
               <div className="mt-8">
                 <Table className="border">
-                  <TableHeader className="bg-slate-600">
+                  <TableHeader className="bg-slate-700">
                     <TableRow className="">
                       <TableHead className="w-[40px] text-white">SN</TableHead>
                       <TableHead className="text-white">Item Description</TableHead>
@@ -114,11 +127,11 @@ function Preview({ open, close, invoiceFields, total, invoiceItems }: IPreview) 
                     </div>
                     <div className="flex gap-6 justify-between items-center">
                       <h3>Discount</h3>
-                      {invoiceFields.discount.toLocaleString("en-US", { maximumFractionDigits: 2, minimumFractionDigits: 2 })}
+                      {Number(invoiceFields.discount).toLocaleString("en-US", { maximumFractionDigits: 2, minimumFractionDigits: 2 })}
                     </div>
                     <div className="flex gap-6 justify-between border-t pt-2 pb-4">
                       <h3 className="font-semibold">Total</h3>
-                      <p>{invoiceFields.currency} {((1 + invoiceFields.tax / 100) * total).toLocaleString("en-US", { maximumFractionDigits: 2, minimumFractionDigits: 2 })} </p>
+                      <p>{invoiceFields.currency} {(((1 + invoiceFields.tax / 100) * total) - invoiceFields.discount).toLocaleString("en-US", { maximumFractionDigits: 2, minimumFractionDigits: 2 })} </p>
                     </div>
                   </div>
                 </div>
@@ -128,9 +141,15 @@ function Preview({ open, close, invoiceFields, total, invoiceItems }: IPreview) 
                 <p>{invoiceFields.notes}</p>
               </div>
             </div>
-            <div className='flex justify-end gap-2 w-full mt-6 scale-95 px-8'>
-              <Button onClick={() => printToPDF()} className="w-32"><Download /> Download</Button>
-              <Button variant={"destructive"} onClick={close} className="w-32"><X /> Cancel</Button>
+            <div className='flex justify-between gap-2 w-full mt-6 scale-95 px-8'>
+              <Button className="w-32" variant="outline" disabled={pending} onClick={newInvoice}>
+                <FileText />
+                New
+              </Button>
+              <div className="flex gap-4">
+                <Button onClick={() => printToPDF()} className="w-32" disabled={pending}><Download /> Download</Button>
+                <Button variant={"destructive"} onClick={close} className="w-32" disabled={pending}><X /> Cancel</Button>
+              </div>
             </div>
           </div>
           <AlertDialogFooter>
