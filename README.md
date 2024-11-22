@@ -4,11 +4,11 @@ Lightweight, easy-to-use invoice generator made to streamline billing processes.
 
 
 #### In the Pipeline
-Personalised experience such as:
-  - view past invoices
-  - customer management
-  - deliver invoices directly to client email
-  - dashboard and analytics
+  - Currency selector
+  - View past invoices
+  - Customer / client management
+  - Deliver invoices directly to client email
+  - Dashboard and analytics
 
 <br />
 
