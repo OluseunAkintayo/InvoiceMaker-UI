@@ -216,7 +216,7 @@ const NewInvoice = () => {
             <h3 className="font-semibold text-slate-700 sm:hidden">Invoice Items</h3>
             <Table>
               <TableHeader className="hidden sm:contents">
-                <TableRow className="bg-slate-700">
+                <TableRow className="bg-slate-700 hover:bg-slate-700">
                   <TableHead className="w-full text-white">Iten Description</TableHead>
                   <TableHead className="text-center min-w-20 text-white">Quantity</TableHead>
                   <TableHead className="text-right min-w-28 pr-8 text-white">Rate</TableHead>
