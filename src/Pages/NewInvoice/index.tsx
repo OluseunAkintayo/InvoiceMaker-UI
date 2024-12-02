@@ -2,7 +2,7 @@ import React from "react";
 import { Input } from "@/components/ui/input";
 import { IInvoiceItem, IInvoiceFields } from "@/lib/types";
 import { Button } from "@/components/ui/button";
-import { Eye, Loader, OctagonAlert, Trash, X } from "lucide-react";
+import { FileText, Loader, OctagonAlert, Trash, X } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import * as yup from 'yup';
@@ -14,15 +14,18 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow,
+  TableRow
 } from "@/components/ui/table"
-import Preview from "./Preview";
-
+import useMobile from "@/hooks/use-mobile";
+import { PrintComponent } from "./PrintComponent";
+// @ts-expect-error module_file_declaration
+import html2pdf from 'html2pdf.js';
 
 const NewInvoice = () => {
+  const mobile = useMobile();
   const [invoiceItems, setInvoiceItems] = React.useState<Array<IInvoiceItem>>(
     JSON.parse(sessionStorage.getItem("invoiceItems") ?? 'null') ??
-    [{ description: "Lorem Ipsum", rate: 1, quantity: 1 }]
+    [{ description: "", rate: 1, quantity: 1 }]
   );
 
   const handleChange = (i: number, field: string, value: string | number) => {
@@ -53,24 +56,25 @@ const NewInvoice = () => {
   })
   const form = useForm({ resolver: yupResolver(schema) });
   const { handleSubmit, register, setValue, watch, formState: { errors: formErrors } } = form;
-
   const [loading, setLoading] = React.useState<boolean>(false);
-  const [preview, setPreview] = React.useState<boolean>(false);
 
-  const submit: SubmitHandler<IInvoiceFields> = () => {
+  const submit: SubmitHandler<IInvoiceFields> = async () => {
     setLoading(true);
+    const elem = document.getElementById("invoice");
     setTimeout(() => {
+      html2pdf(elem, {
+        filename: 'Invoice ' + watch().invoiceNumber
+      });
       setLoading(false);
-      setPreview(true);
-    }, 500);
+    }, 2000);
   }
 
   const addItem = () => {
     if (invoiceItems.length === 0) {
-      setInvoiceItems([...invoiceItems, { description: "", rate: 0, quantity: 1 }]);
+      setInvoiceItems([...invoiceItems, { description: "", rate: "", quantity: "" }]);
       return;
     }
-    setInvoiceItems([...invoiceItems, { description: "", rate: 0, quantity: 1 }]);
+    setInvoiceItems([...invoiceItems, { description: "", rate: "", quantity: "" }]);
   }
 
   const removeItem = (idx: number) => {
@@ -79,16 +83,17 @@ const NewInvoice = () => {
     sessionStorage.setItem("invoiceItems", JSON.stringify(filtered));
   }
 
+  // invoice total
   const [total, setTotal] = React.useState<number>(0);
-
   React.useEffect(() => {
-    const sum = invoiceItems.reduce((acc, item) => acc + (item.rate * item.quantity), 0);
+    const sum = invoiceItems.reduce((acc, item) => acc + (Number(item.rate) * Number(item.quantity)), 0);
     setTotal(sum);
   }, [invoiceItems]);
 
   const generateInvoiceNumber = () => {
     const num = Math.floor(100000 + Math.random() * 900000);
     setValue("invoiceNumber", "#" + num.toString());
+    sessionStorage.setItem("invoiceNumber", watch("invoiceNumber"));
   }
 
   React.useEffect(() => {
@@ -97,8 +102,8 @@ const NewInvoice = () => {
       setValue("invoiceNumber", invoiceNumber);
     } else {
       generateInvoiceNumber();
-      sessionStorage.setItem("invoiceNumber", watch("invoiceNumber"))
     }
+
     setValue("logo", "/assets/200x144.svg");
     setValue("discount", 0);
     setValue("tax", 7.5);
@@ -110,14 +115,14 @@ const NewInvoice = () => {
     setValue("customerAddress", sessionStorage.getItem("customerAddress") || '');
     setValue("customerEmail", sessionStorage.getItem("customerEmail") || '');
     setValue("notes", sessionStorage.getItem("notes") || '');
-    // const billDate = sessionStorage.getItem("billDate");
-    // const dueDate = sessionStorage.getItem("dueDate");
-    // setValue("billDate", billDate ? new Date(billDate) : new Date());
-    // setValue("dueDate", dueDate ? new Date(dueDate) : new Date());
+    if (sessionStorage.getItem("invoiceItems") === "[]") {
+      setInvoiceItems([...invoiceItems, { description: "", rate: "", quantity: "" }]);
+      return;
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  console.log(watch());
+  // console.log(watch());
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files && e.target.files[0];
@@ -148,73 +153,94 @@ const NewInvoice = () => {
             </label>
           </div>
           <div className="grid sm:grid-cols-3 gap-4 sm:border sm:border-slate-100 rounded-md sm:p-4 mt-12">
+            <h3 className="font-semibold text-slate-700 sm:hidden">Biller</h3>
             <div className="">
-              <Label className="inline-block mb-2">Biller name</Label>
+              <Label className="hidden sm:inline-block mb-2">Biller name</Label>
               <Input className="shadow-sm" {...register("billerName", {
                 onBlur: e => sessionStorage.setItem("billerName", e.target.value)
               })} placeholder="Biller name" />
               {formErrors.billerName && <p className="text-destructive text-xs flex items-center mt-1"><OctagonAlert className="h-4" /> {formErrors.billerName.message}</p>}
             </div>
             <div>
-              <Label className="inline-block mb-2">Biller Address</Label>
+              <Label className="hidden sm:inline-block mb-2">Biller Address</Label>
               <Input className="shadow-sm" {...register("billerAddress", {
                 onBlur: e => sessionStorage.setItem("billerAddress", e.target.value)
               })} placeholder="Biller address" />
               {formErrors.billerAddress && <p className="text-destructive text-xs flex items-center mt-1"><OctagonAlert className="h-4" /> {formErrors.billerAddress.message}</p>}
             </div>
             <div>
-              <Label className="inline-block mb-2">Biller Email</Label>
+              <Label className="hidden sm:inline-block mb-2">Biller Email</Label>
               <Input className="shadow-sm" {...register("billerEmail", {
                 onBlur: e => sessionStorage.setItem("billerEmail", e.target.value)
               })} placeholder="Biller Email" />
               {formErrors.billerEmail && <p className="text-destructive text-xs flex items-center mt-1"><OctagonAlert className="h-4" /> {formErrors.billerEmail.message}</p>}
             </div>
+            <h3 className="font-semibold text-slate-700 sm:hidden mt-4">Client</h3>
             <div>
-              <Label className="inline-block mb-2">Client Name</Label>
+              <Label className="hidden sm:inline-block mb-2">Client Name</Label>
               <Input className="shadow-sm" {...register("customerName", {
                 onBlur: e => sessionStorage.setItem("customerName", e.target.value)
               })} placeholder="Client company name" />
               {formErrors.customerName && <p className="text-destructive text-xs flex items-center mt-1"><OctagonAlert className="h-4" /> {formErrors.customerName.message}</p>}
             </div>
             <div>
-              <Label className="inline-block mb-2">Client Address</Label>
+              <Label className="hidden sm:inline-block mb-2">Client Address</Label>
               <Input className="shadow-sm" {...register("customerAddress", {
                 onBlur: e => sessionStorage.setItem("customerAddress", e.target.value)
               })} placeholder="Client address" />
               {formErrors.customerAddress && <p className="text-destructive text-xs flex items-center mt-1"><OctagonAlert className="h-4" /> {formErrors.customerAddress.message}</p>}
             </div>
             <div>
-              <Label className="inline-block mb-2">Client Email</Label>
+              <Label className="hidden sm:inline-block mb-2">Client Email</Label>
               <Input className="shadow-sm" {...register("customerEmail", {
                 onBlur: e => sessionStorage.setItem("customerEmail", e.target.value)
               })} placeholder="Client Email" />
               {formErrors.customerEmail && <p className="text-destructive text-xs flex items-center mt-1"><OctagonAlert className="h-4" /> {formErrors.customerEmail.message}</p>}
             </div>
-            <div>
+            <div className="w-full hidden sm:block">
               <Label className="inline-block mb-2">Invoice date</Label>
               <Input className="shadow-sm" type="date" {...register("billDate", {
                 onBlur: e => sessionStorage.setItem("billDate", e.target.value)
               })} />
               {formErrors.billDate && <p className="text-destructive text-xs flex items-center mt-1"><OctagonAlert className="h-4" /> {formErrors.billDate.message}</p>}
             </div>
-            <div>
+            <div className="w-full hidden sm:block">
               <Label className="inline-block mb-2">Invoice Due Date</Label>
-              <Input className="shadow-sm" type="date" {...register("dueDate", {
-                onBlur: e => sessionStorage.setItem("dueDate", e.target.value)
-              })} />
+              <Input
+                className="shadow-sm" type="date" {...register("dueDate", { onBlur: e => sessionStorage.setItem("dueDate", e.target.value) })} />
               {formErrors.dueDate && <p className="text-destructive text-xs flex items-center mt-1"><OctagonAlert className="h-4" /> {formErrors.dueDate.message}</p>}
             </div>
+
+            {
+              mobile &&
+              <div className="grid grid-cols-2 gap-4 -mt-2">
+                <div className="w-full">
+                  <Label className="inline-block mb-2">Invoice date</Label>
+                  <Input className="shadow-sm" type="date" {...register("billDate", {
+                    onBlur: e => sessionStorage.setItem("billDate", e.target.value)
+                  })} style={{ width: 'calc(50vw - 1.5rem)' }} />
+                  {formErrors.billDate && <p className="text-destructive text-xs flex items-center mt-1"><OctagonAlert className="h-4" /> {formErrors.billDate.message}</p>}
+                </div>
+                <div className="w-full">
+                  <Label className="inline-block mb-2">Invoice Due Date</Label>
+                  <Input className="shadow-sm" type="date" {...register("dueDate", {
+                    onBlur: e => sessionStorage.setItem("dueDate", e.target.value)
+                  })} style={{ width: 'calc(50vw - 1.5rem)' }} />
+                  {formErrors.dueDate && <p className="text-destructive text-xs flex items-center mt-1"><OctagonAlert className="h-4" /> {formErrors.dueDate.message}</p>}
+                </div>
+              </div>
+            }
             <div>
-              <Label className="inline-block mb-2">Currency</Label>
+              <Label className="hidden sm:inline-block mb-2">Currency</Label>
               <Input className="shadow-sm" {...register("currency", {
                 onBlur: e => sessionStorage.setItem("currency", e.target.value)
-              })} />
+              })} placeholder="Currency" />
               {formErrors.currency && <p className="text-destructive text-xs flex items-center mt-1"><OctagonAlert className="h-4" /> {formErrors.currency.message}</p>}
             </div>
           </div>
-          <div className="mt-8">
-            <h3 className="font-semibold text-slate-700 sm:hidden">Invoice Items</h3>
-            <Table>
+          <div className="mt-12 sm:mt-8">
+            <h3 className="font-semibold text-slate-700 mb-4 sm:mb-0 sm:hidden">Invoice Items</h3>
+            {!mobile && <Table>
               <TableHeader className="hidden sm:contents">
                 <TableRow className="bg-slate-700 hover:bg-slate-700">
                   <TableHead className="w-full text-white">Iten Description</TableHead>
@@ -259,7 +285,7 @@ const NewInvoice = () => {
                           />
                         </TableCell>
                         <TableCell className="text-right">
-                          {(item.quantity * item.rate).toLocaleString()}
+                          {(Number(item.quantity) * Number(item.rate)).toLocaleString()}
                         </TableCell>
                         <TableCell className="">
                           <Button variant="destructive" onClick={() => removeItem(index)}>
@@ -270,15 +296,60 @@ const NewInvoice = () => {
                     ))
                 }
               </TableBody>
-            </Table>
-            <div className="border-t pt-8 flex flex-col sm:flex-row items-start justify-between">
-              <div className="sm:flex-1 w-full">
-                <Button type="button" onClick={addItem} className="bg-muted" variant="outline">Add item</Button>
+            </Table>}
+
+            {
+              mobile &&
+              <div className="space-y-8">
+                {
+                  invoiceItems.map((item, index) => (
+                    <div className="grid gap-2">
+                      <Input
+                        onChange={(e) => handleChange(index, "description", e.target.value)}
+                        name="description" value={item.description} placeholder='Item description'
+                        className='w-full shadow-sm text-xs'
+                        onBlur={() => sessionStorage.setItem("invoiceItems", JSON.stringify(invoiceItems))}
+                      />
+                      <div className="flex gap-2">
+                        <Input
+                          value={item.quantity}
+                          type="number" name="quantity" min="0" max="99999"
+                          placeholder="Quantity"
+                          className='text-center flex-1 text-xs'
+                          onChange={(e) => handleChange(index, "quantity", e.target.value)}
+                          onBlur={() => sessionStorage.setItem("invoiceItems", JSON.stringify(invoiceItems))}
+                        />
+                        <Input
+                          name="rate" value={item.rate} type="number"
+                          className='text-right flex-[2] text-xs'
+                          placeholder="Rate"
+                          onChange={(e) => handleChange(index, "rate", e.target.value)}
+                          onBlur={() => sessionStorage.setItem("invoiceItems", JSON.stringify(invoiceItems))}
+                        />
+                        <Input
+                          value={(Number(item.rate) * Number(item.quantity)).toLocaleString()}
+                          className='text-right flex-[2] text-xs' disabled
+                        />
+                        <Button className="px-0 aspect-square" type="button" variant="destructive" onClick={() => removeItem(index)}>
+                          <Trash />
+                        </Button>
+                      </div>
+                      {/* {(item.quantity * item.rate).toLocaleString()} */}
+                    </div>
+                  ))
+                }
+              </div>
+            }
+            <div className="mt-4 border-t pt-8 flex flex-col sm:flex-row items-start justify-between">
+              <div className="sm:flex-1 w-full mt-4 sm:mt-0">
+                <Button type="button" onClick={addItem} className="text-xs bg-muted" variant="outline">Add item</Button>
                 <div className="hidden sm:block mt-8 w-full space-y-2">
-                  <Label htmlFor="notes" className="text-slate-500 font-semibold">Notes</Label>
+                  <Label htmlFor="notes" className="text-slate-500 font-semibold text-xs">Notes</Label>
                   <Textarea {...register("notes", {
                     onBlur: e => sessionStorage.setItem("notes", e.target.value)
-                  })} id="notes" placeholder="Enter additional notes" className="resize-none" />
+                  })}
+                    id="notes" placeholder="Enter additional notes" className="resize-none"
+                  />
                 </div>
               </div>
               <div className="sm:flex-1" />
@@ -320,19 +391,18 @@ const NewInvoice = () => {
                 })} id="notes" placeholder="Enter additional notes" className="resize-none" />
               </div>
             </div>
-            <div className="py-8 flex justify-end">
-              <Button type="submit" className="px-8 h-12 w-full sm:w-[144px]" disabled={loading}>
+            <div className="py-8 flex justify-end space-x-4">
+              {/* <Button type="submit" className="px-8 h-12 w-full sm:w-[144px]" disabled={loading}>
                 {loading ? <Loader className="animate-spin" /> : <><Eye className="mr-1" /> Preview</>}
+              </Button> */}
+              <Button type="submit" className="px-8 h-12 w-full sm:w-[144px]" disabled={loading}>
+                {loading ? <Loader className="animate-spin" /> : <><FileText className="mr-1" /> Download</>}
               </Button>
             </div>
           </div>
         </div>
       </form>
-      <>
-        {
-          preview && <Preview invoiceItems={invoiceItems} total={total} invoiceFields={watch()} open={preview} close={() => setPreview(false)} />
-        }
-      </>
+      <PrintComponent invoiceFields={watch()} total={total} invoiceItems={invoiceItems} />
     </section>
   )
 }

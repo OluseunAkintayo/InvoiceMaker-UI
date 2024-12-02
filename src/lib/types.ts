@@ -11,9 +11,9 @@ export interface ILoginResponse {
 
 export interface IInvoiceItem {
   description: string;
-  quantity: number;
-  rate: number;
-  tax?: number;
+  quantity: string;
+  rate: string;
+  tax?: string;
 }
 
 export interface IInvoiceFields {
