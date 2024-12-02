@@ -2,7 +2,7 @@ import React from "react";
 import { Input } from "@/components/ui/input";
 import { IInvoiceItem, IInvoiceFields } from "@/lib/types";
 import { Button } from "@/components/ui/button";
-import { FileText, Loader, OctagonAlert, Trash, X } from "lucide-react";
+import { FileText, Loader, OctagonAlert, RotateCcw, Trash, X } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import * as yup from 'yup';
@@ -18,15 +18,23 @@ import {
 } from "@/components/ui/table"
 import useMobile from "@/hooks/use-mobile";
 import { PrintComponent } from "./PrintComponent";
+
 // @ts-expect-error module_file_declaration
 import html2pdf from 'html2pdf.js';
 
 const NewInvoice = () => {
   const mobile = useMobile();
-  const [invoiceItems, setInvoiceItems] = React.useState<Array<IInvoiceItem>>(
-    JSON.parse(sessionStorage.getItem("invoiceItems") ?? 'null') ??
-    [{ description: "", rate: 1, quantity: 1 }]
-  );
+  const [invoiceItems, setInvoiceItems] = React.useState<Array<IInvoiceItem>>(JSON.parse(sessionStorage.getItem("invoiceItems") ?? 'null') ?? []);
+
+  React.useEffect(() => {
+    if (JSON.parse(sessionStorage.getItem("invoiceItems") ?? 'null') === null) {
+      if (mobile) {
+        setInvoiceItems([{ description: "", rate: "", quantity: "" }]);
+      } else {
+        setInvoiceItems([{ description: "", rate: "1", quantity: "1" }])
+      }
+    }
+  }, [mobile]);
 
   const handleChange = (i: number, field: string, value: string | number) => {
     const newItems = [...invoiceItems]
@@ -71,10 +79,17 @@ const NewInvoice = () => {
 
   const addItem = () => {
     if (invoiceItems.length === 0) {
-      setInvoiceItems([...invoiceItems, { description: "", rate: "", quantity: "" }]);
-      return;
+      if(mobile) {
+        setInvoiceItems([...invoiceItems, { description: "", rate: "", quantity: "" }]);
+      } else {
+        setInvoiceItems([...invoiceItems, { description: "", rate: "1", quantity: "1" }]);
+      }
     }
-    setInvoiceItems([...invoiceItems, { description: "", rate: "", quantity: "" }]);
+    if(mobile) {
+      setInvoiceItems([...invoiceItems, { description: "", rate: "", quantity: "" }]);
+    } else {
+      setInvoiceItems([...invoiceItems, { description: "", rate: "1", quantity: "1" }]);
+    }
   }
 
   const removeItem = (idx: number) => {
@@ -115,14 +130,8 @@ const NewInvoice = () => {
     setValue("customerAddress", sessionStorage.getItem("customerAddress") || '');
     setValue("customerEmail", sessionStorage.getItem("customerEmail") || '');
     setValue("notes", sessionStorage.getItem("notes") || '');
-    if (sessionStorage.getItem("invoiceItems") === "[]") {
-      setInvoiceItems([...invoiceItems, { description: "", rate: "", quantity: "" }]);
-      return;
-    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  // console.log(watch());
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files && e.target.files[0];
@@ -137,6 +146,8 @@ const NewInvoice = () => {
     }
   }
 
+  React.useEffect(() => { window.scrollTo(0, 0) }, [])
+
   return (
     <section>
       <form autoComplete="off" onSubmit={handleSubmit(submit)}>
@@ -144,13 +155,26 @@ const NewInvoice = () => {
           <div className="flex flex-col sm:flex-row gap-8 sm:gap-4 justify-between">
             <div className="space-y-0">
               <h3 className="text-5xl font-semibold mb-8">Invoice</h3>
-              <Input {...register("invoiceNumber")} />
+              {!mobile &&
+                <div className="relative">
+                  <Input {...register("invoiceNumber", { onBlur: e => sessionStorage.setItem("invoiceNumber", e.target.value) })} />
+                  <Button onClick={generateInvoiceNumber} type="button" className="p-0 h-8 w-8 absolute top-1 bottom-1 right-1 aspect-square rounded-full bg-slate-200 hover:bg-slate-200/80"><RotateCcw className="text-slate-700 scale-90" /></Button>
+                </div>
+              }
             </div>
-            <label htmlFor="logo" className="cursor-pointer inline-block relative w-[150px] h-[108px]">
-              <Button type="button" onClick={() => setValue("logo", "/assets/200x144.svg")} variant="destructive" className="absolute -top-2 -right-2 p-0 h-6 w-6 rounded-full z-10"><X /></Button>
-              <img src={watch("logo")} alt="logo" className="hover:opacity-70 transition-all duration-300 rounded-md w-full h-auto" />
-              <Input type="file" accept=".png, .jpg, .jpeg, .svg, .webp" {...register("logo", { onChange: handleImageUpload })} className="hidden" id="logo" />
-            </label>
+            <div className="grid gap-6">
+              <label htmlFor="logo" className="cursor-pointer inline-block relative w-[150px] h-[108px]">
+                <Button type="button" onClick={() => setValue("logo", "/assets/200x144.svg")} variant="destructive" className="absolute -top-2 -right-2 p-0 h-6 w-6 rounded-full z-10"><X /></Button>
+                <img src={watch("logo")} alt="logo" className="hover:opacity-70 transition-all duration-300 rounded-md w-full h-auto" />
+                <Input type="file" accept=".png, .jpg, .jpeg, .svg, .webp" {...register("logo", { onChange: handleImageUpload })} className="hidden" id="logo" />
+              </label>
+              {mobile && <div className="relative">
+                <Input {...register("invoiceNumber", {
+                  onBlur: e => sessionStorage.setItem("invoiceNumber", e.target.value)
+                })} />
+                <Button onClick={generateInvoiceNumber} type="button" className="p-0 h-8 w-8 absolute top-1 bottom-1 right-1 aspect-square rounded-full bg-slate-200 hover:bg-slate-200/80"><RotateCcw className="text-slate-700 scale-90" /></Button>
+              </div>}
+            </div>
           </div>
           <div className="grid sm:grid-cols-3 gap-4 sm:border sm:border-slate-100 rounded-md sm:p-4 mt-12">
             <h3 className="font-semibold text-slate-700 sm:hidden">Biller</h3>
@@ -240,7 +264,7 @@ const NewInvoice = () => {
           </div>
           <div className="mt-12 sm:mt-8">
             <h3 className="font-semibold text-slate-700 mb-4 sm:mb-0 sm:hidden">Invoice Items</h3>
-            {!mobile && <Table>
+            {!mobile && <Table className="rounded-tl-md rounded-tr-md overflow-hidden">
               <TableHeader className="hidden sm:contents">
                 <TableRow className="bg-slate-700 hover:bg-slate-700">
                   <TableHead className="w-full text-white">Iten Description</TableHead>
@@ -263,7 +287,7 @@ const NewInvoice = () => {
                           <Input
                             onChange={(e) => handleChange(index, "description", e.target.value)}
                             name="description" value={item.description} placeholder='Item description'
-                            className='border-none w-[200px] sm:w-full'
+                            className='w-[200px] sm:w-full'
                             onBlur={() => sessionStorage.setItem("invoiceItems", JSON.stringify(invoiceItems))}
                           />
                         </TableCell>
@@ -271,16 +295,28 @@ const NewInvoice = () => {
                           <Input
                             value={item.quantity}
                             type="number" name="quantity" max="99999"
-                            className='text-center border-none'
-                            onChange={(e) => handleChange(index, "quantity", e.target.value)}
+                            className='text-center'
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              const pattern = /^-?\d+$/;
+                              if (pattern.test(val)) {
+                                handleChange(index, "quantity", val)
+                              }
+                            }}
                             onBlur={() => sessionStorage.setItem("invoiceItems", JSON.stringify(invoiceItems))}
                           />
                         </TableCell>
                         <TableCell className="">
                           <Input
                             name="rate" value={item.rate} type="number"
-                            className='text-right border-none'
-                            onChange={(e) => handleChange(index, "rate", e.target.value)}
+                            className='text-right'
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              const pattern = /^-?\d+(\.\d+)?$/
+                              if (pattern.test(val)) {
+                                handleChange(index, "rate", val)
+                              }
+                            }}
                             onBlur={() => sessionStorage.setItem("invoiceItems", JSON.stringify(invoiceItems))}
                           />
                         </TableCell>
@@ -298,48 +334,62 @@ const NewInvoice = () => {
               </TableBody>
             </Table>}
 
-            {
-              mobile &&
-              <div className="space-y-8">
-                {
-                  invoiceItems.map((item, index) => (
-                    <div className="grid gap-2">
-                      <Input
-                        onChange={(e) => handleChange(index, "description", e.target.value)}
-                        name="description" value={item.description} placeholder='Item description'
-                        className='w-full shadow-sm text-xs'
-                        onBlur={() => sessionStorage.setItem("invoiceItems", JSON.stringify(invoiceItems))}
-                      />
-                      <div className="flex gap-2">
+            <React.Fragment>
+              {
+                mobile &&
+                <div className="space-y-8">
+                  {
+                    invoiceItems.map((item, index) => (
+                      <div className="grid gap-2">
                         <Input
-                          value={item.quantity}
-                          type="number" name="quantity" min="0" max="99999"
-                          placeholder="Quantity"
-                          className='text-center flex-1 text-xs'
-                          onChange={(e) => handleChange(index, "quantity", e.target.value)}
+                          onChange={(e) => handleChange(index, "description", e.target.value)}
+                          name="description" value={item.description} placeholder='Item description'
+                          className='w-full shadow-sm text-xs'
                           onBlur={() => sessionStorage.setItem("invoiceItems", JSON.stringify(invoiceItems))}
                         />
-                        <Input
-                          name="rate" value={item.rate} type="number"
-                          className='text-right flex-[2] text-xs'
-                          placeholder="Rate"
-                          onChange={(e) => handleChange(index, "rate", e.target.value)}
-                          onBlur={() => sessionStorage.setItem("invoiceItems", JSON.stringify(invoiceItems))}
-                        />
-                        <Input
-                          value={(Number(item.rate) * Number(item.quantity)).toLocaleString()}
-                          className='text-right flex-[2] text-xs' disabled
-                        />
-                        <Button className="px-0 aspect-square" type="button" variant="destructive" onClick={() => removeItem(index)}>
-                          <Trash />
-                        </Button>
+                        <div className="flex gap-2">
+                          <Input
+                            value={item.quantity}
+                            type="number" name="quantity" min="0" max="99999"
+                            placeholder="Quantity"
+                            className='text-center flex-1 text-xs'
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              const pattern = /^-?\d+$/;
+                              if (pattern.test(val)) {
+                                handleChange(index, "quantity", val)
+                              }
+                            }}
+                            onBlur={() => sessionStorage.setItem("invoiceItems", JSON.stringify(invoiceItems))}
+                          />
+                          <Input
+                            name="rate" value={item.rate} type="number"
+                            className='text-right flex-[2] text-xs'
+                            placeholder="Rate"
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              const pattern = /^-?\d+(\.\d+)?$/
+                              if (pattern.test(val)) {
+                                handleChange(index, "rate", val)
+                              }
+                            }}
+                            onBlur={() => sessionStorage.setItem("invoiceItems", JSON.stringify(invoiceItems))}
+                          />
+                          <Input
+                            value={(Number(item.rate) * Number(item.quantity)).toLocaleString()}
+                            className='text-right flex-[2] text-xs' disabled
+                          />
+                          <Button className="px-0 aspect-square" type="button" variant="destructive" onClick={() => removeItem(index)}>
+                            <Trash />
+                          </Button>
+                        </div>
+                        {/* {(item.quantity * item.rate).toLocaleString()} */}
                       </div>
-                      {/* {(item.quantity * item.rate).toLocaleString()} */}
-                    </div>
-                  ))
-                }
-              </div>
-            }
+                    ))
+                  }
+                </div>
+              }
+            </React.Fragment>
             <div className="mt-4 border-t pt-8 flex flex-col sm:flex-row items-start justify-between">
               <div className="sm:flex-1 w-full mt-4 sm:mt-0">
                 <Button type="button" onClick={addItem} className="text-xs bg-muted" variant="outline">Add item</Button>
@@ -370,7 +420,7 @@ const NewInvoice = () => {
                         setValue("tax", parseFloat(e.target.value));
                       }
                     })}
-                      type="number" step={0.1} min={0} className="focus-visible:ring-0 w-16 text-center"
+                      type="number" step={0.1} min={0} className="focus-visible:ring-0 w-16 text-center h-9 text-xs"
                     />
                   </div>
                   <p>{(total * watch("tax") / 100).toLocaleString("en-US", { maximumFractionDigits: 2, minimumFractionDigits: 2 })}</p>
