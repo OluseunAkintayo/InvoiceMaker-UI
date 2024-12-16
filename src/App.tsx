@@ -1,14 +1,21 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import Home from './Pages/Home/index.tsx';
 import Signup from './Pages/Auth/Signup.tsx';
 import Login from './Pages/Auth/Login.tsx';
 import NewInvoice from './Pages/NewInvoice/index.tsx';
+import ResetPassword from './Pages/Auth/ResetPassword.tsx';
+import NotFound from './Pages/NotFound';
+import Dashboard from './Pages/Dashboard';
+import Home from './Pages/Home/index.tsx';
 
 function App() {
 
   const router = createBrowserRouter([
     {
       path: "/",
+      element: <NewInvoice />
+    },
+    {
+      path: "/home",
       element: <Home />
     },
     {
@@ -20,9 +27,17 @@ function App() {
       element: <Login />
     },
     {
-      path: "/invoice",
-      element: <NewInvoice />
+      path: "/auth/reset-password",
+      element: <ResetPassword />
     },
+    {
+      path: "/dashboard",
+      element: <Dashboard />
+    },
+    {
+      path: "*",
+      element: <NotFound />
+    }
   ]);
 
   return <RouterProvider router={router} />

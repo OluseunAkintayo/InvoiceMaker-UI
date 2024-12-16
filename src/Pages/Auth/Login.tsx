@@ -2,12 +2,13 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
 import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 import { Eye, EyeOff, Loader } from 'lucide-react';
 import React from 'react'
 import { Link } from 'react-router-dom';
 import { ILoginResponse } from '@/lib/types';
+import { CredentialResponse, GoogleLogin } from "@react-oauth/google";
+
 
 const Login = () => {
   const [login, setLogin] = React.useState<{ username: string; password: string; }>({ username: "", password: "" });
@@ -20,52 +21,35 @@ const Login = () => {
     setLogin({ ...login, [name]: value });
   }
 
-  const { toast } = useToast();
-  const showMessage = () => {
-    toast({
-      className: 'top-0 right-0 flex fixed md:max-w-[420px] md:top-4 md:right-4',
-      title: "Coming soon!",
-      description: "This feature will be available soon 😊",
-    });
-  }
-
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (error) setError(null);
     setLoading(true);
-    setTimeout(() => {
-      window.location.href = "/dashboard";
-    }, 2000)
-    return;
     const config: AxiosRequestConfig = {
       method: "POST",
-      url: "auth/user/login",
+      url: "auth/login",
       headers: {
         "Access-Control-Allow-Origin": "*"
       },
       data: {
         email: login.username,
-        password: login.password
+        passcode: login.password
       }
     }
     try {
       const res = await axios.request(config);
-      console.log(res);
       if (res.status === 400) {
-        setError("Incorrect username or password");
+        setError("Email or password is incorrect");
         return;
       }
       const data: ILoginResponse = res.data;
       if (!data.success) {
-        setError("Error logging in");
-        console.log(res);
+        setError("Email or password is incorrect");
         return;
       }
-      sessionStorage.setItem("user", data.data.email);
-      sessionStorage.setItem("token", data.data.token);
-      sessionStorage.setItem("exp", data.data.exp);
-      sessionStorage.setItem("role", data.data.role.toString());
-      // setLoading(false);
+      sessionStorage.setItem("user_id", data.user.id);
+      sessionStorage.setItem("email", data.user.email);
+      sessionStorage.setItem("token", data.access_token);
       window.location.replace("/dashboard");
     } catch (err: unknown) {
       const catchError = err as AxiosError;
@@ -74,6 +58,12 @@ const Login = () => {
       setLoading(false);
     }
   }
+  const handleGoogleLogin = async (res: CredentialResponse) => {
+    console.log(res);
+  }
+
+
+  const handleError = () => console.log("Auth Error");
 
   return (
     <div className='h-[100dvh] grid place-items-center'>
@@ -103,6 +93,7 @@ const Login = () => {
                 <Button className='w-full' disabled={loading}>
                   {loading ? <Loader className='animate-spin w-4 h-4' /> : "Login"}
                 </Button>
+                <p className='text-xs text-slate-500 underline mt-1'><Link to="/auth/reset-password">Forgot password</Link></p>
               </div>
             </form>
             <div className="relative mt-6">
@@ -110,18 +101,11 @@ const Login = () => {
                 <div className="w-full border-t border-gray-300"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="bg-white px-2 text-gray-500">Or continue with</span>
+                <span className="bg-white px-4 text-gray-500">OR</span>
               </div>
             </div>
-            <div className="mt-6">
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={showMessage}
-              >
-                <img src="/assets/google.svg" className='w-5 mr-1' />
-                Sign in with Google
-              </Button>
+            <div className="mt-6 grid place-items-center">
+              <GoogleLogin onSuccess={(res) => handleGoogleLogin(res)} onError={handleError} />
             </div>
             <p className="mt-4 text-center text-sm text-gray-600">
               Don't have an account?{" "}

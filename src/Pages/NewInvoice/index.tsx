@@ -30,9 +30,9 @@ const NewInvoice = () => {
     if (JSON.parse(sessionStorage.getItem("invoiceItems") ?? 'null') === null) {
       if (mobile) {
         setInvoiceItems([{ description: "", rate: "", quantity: "" }]);
-      } else {
-        setInvoiceItems([{ description: "", rate: "1", quantity: "1" }])
+        return;
       }
+      setInvoiceItems([{ description: "", rate: "1", quantity: "1" }])
     }
   }, [mobile]);
 
@@ -79,13 +79,13 @@ const NewInvoice = () => {
 
   const addItem = () => {
     if (invoiceItems.length === 0) {
-      if(mobile) {
+      if (mobile) {
         setInvoiceItems([...invoiceItems, { description: "", rate: "", quantity: "" }]);
       } else {
         setInvoiceItems([...invoiceItems, { description: "", rate: "1", quantity: "1" }]);
       }
     }
-    if(mobile) {
+    if (mobile) {
       setInvoiceItems([...invoiceItems, { description: "", rate: "", quantity: "" }]);
     } else {
       setInvoiceItems([...invoiceItems, { description: "", rate: "1", quantity: "1" }]);
@@ -106,7 +106,7 @@ const NewInvoice = () => {
   }, [invoiceItems]);
 
   const generateInvoiceNumber = () => {
-    const num = Math.floor(100000 + Math.random() * 900000);
+    const num = Math.floor(10000000 + Math.random() * 99999999);
     setValue("invoiceNumber", "#" + num.toString());
     sessionStorage.setItem("invoiceNumber", watch("invoiceNumber"));
   }
@@ -156,8 +156,8 @@ const NewInvoice = () => {
             <div className="space-y-0">
               <h3 className="text-5xl font-semibold mb-8">Invoice</h3>
               {!mobile &&
-                <div className="relative">
-                  <Input {...register("invoiceNumber", { onBlur: e => sessionStorage.setItem("invoiceNumber", e.target.value) })} />
+                <div className="relative bg-red-200">
+                  <Input className="text-xs tracking-wide" {...register("invoiceNumber", { onBlur: e => sessionStorage.setItem("invoiceNumber", e.target.value) })} />
                   <Button onClick={generateInvoiceNumber} type="button" className="p-0 h-8 w-8 absolute top-1 bottom-1 right-1 aspect-square rounded-full bg-slate-200 hover:bg-slate-200/80"><RotateCcw className="text-slate-700 scale-90" /></Button>
                 </div>
               }
@@ -299,9 +299,7 @@ const NewInvoice = () => {
                             onChange={(e) => {
                               const val = e.target.value;
                               const pattern = /^-?\d+$/;
-                              if (pattern.test(val)) {
-                                handleChange(index, "quantity", val)
-                              }
+                              if (pattern.test(val)) handleChange(index, "quantity", val);
                             }}
                             onBlur={() => sessionStorage.setItem("invoiceItems", JSON.stringify(invoiceItems))}
                           />
@@ -313,9 +311,7 @@ const NewInvoice = () => {
                             onChange={(e) => {
                               const val = e.target.value;
                               const pattern = /^-?\d+(\.\d+)?$/
-                              if (pattern.test(val)) {
-                                handleChange(index, "rate", val)
-                              }
+                              if (pattern.test(val)) handleChange(index, "rate", val);
                             }}
                             onBlur={() => sessionStorage.setItem("invoiceItems", JSON.stringify(invoiceItems))}
                           />
@@ -356,9 +352,7 @@ const NewInvoice = () => {
                             onChange={(e) => {
                               const val = e.target.value;
                               const pattern = /^-?\d+$/;
-                              if (pattern.test(val)) {
-                                handleChange(index, "quantity", val)
-                              }
+                              if (pattern.test(val)) handleChange(index, "quantity", val)
                             }}
                             onBlur={() => sessionStorage.setItem("invoiceItems", JSON.stringify(invoiceItems))}
                           />
@@ -369,9 +363,7 @@ const NewInvoice = () => {
                             onChange={(e) => {
                               const val = e.target.value;
                               const pattern = /^-?\d+(\.\d+)?$/
-                              if (pattern.test(val)) {
-                                handleChange(index, "rate", val)
-                              }
+                              if (pattern.test(val)) handleChange(index, "rate", val);
                             }}
                             onBlur={() => sessionStorage.setItem("invoiceItems", JSON.stringify(invoiceItems))}
                           />
@@ -383,7 +375,6 @@ const NewInvoice = () => {
                             <Trash />
                           </Button>
                         </div>
-                        {/* {(item.quantity * item.rate).toLocaleString()} */}
                       </div>
                     ))
                   }
@@ -442,9 +433,6 @@ const NewInvoice = () => {
               </div>
             </div>
             <div className="py-8 flex justify-end space-x-4">
-              {/* <Button type="submit" className="px-8 h-12 w-full sm:w-[144px]" disabled={loading}>
-                {loading ? <Loader className="animate-spin" /> : <><Eye className="mr-1" /> Preview</>}
-              </Button> */}
               <Button type="submit" className="px-8 h-12 w-full sm:w-[144px]" disabled={loading}>
                 {loading ? <Loader className="animate-spin" /> : <><FileText className="mr-1" /> Download</>}
               </Button>

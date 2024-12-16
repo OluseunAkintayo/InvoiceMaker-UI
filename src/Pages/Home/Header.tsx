@@ -13,9 +13,9 @@ const Header = () => {
           <a className="text-sm font-medium hover:underline text-white" href="#start">
             Features
           </a>
-          {/* <Link className="text-sm font-medium hover:underline text-white" to="#">Pricing</Link> */}
           {/* <Link className="text-sm font-medium hover:underline text-white" to="#">About</Link> */}
           <a className="text-sm font-medium hover:underline text-white" href="mailto:michaelsondev@gmail.com">Contact</a>
+          <Link className="text-sm font-medium hover:underline text-white" to="/auth/login">Get Started</Link>
         </nav>
       </div>
     </header>

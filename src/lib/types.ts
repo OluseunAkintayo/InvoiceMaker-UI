@@ -1,11 +1,10 @@
 export interface ILoginResponse {
   success: boolean;
-  message: string;
-  data: {
+  access_token: string;
+  expiration: string;
+  user: {
+    id: string;
     email: string;
-    role: number;
-    token: string;
-    exp: string;
   }
 }
 
