@@ -1,14 +1,15 @@
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import axios, { AxiosRequestConfig } from "axios";
-import { CheckCircle, Download, FileText, Mail, Send, XCircle } from "lucide-react";
+import { Download, Eye, Search, Trash2 } from "lucide-react";
 import React from "react";
+import View from "./View";
 
-interface IRecentInvoices {
+interface InvoicesInterface {
   _id: string;
   invoice_number: string;
   customer_name: string;
@@ -18,65 +19,31 @@ interface IRecentInvoices {
   created_at: string;
 }
 
-interface IRecentInvoicesResponse {
+interface InvoicesResponseInterface {
   success: boolean;
-  data: Array<IRecentInvoices>;
+  data: Array<InvoicesInterface>;
 }
 
-const metrics = [
-  {
-    title: "Total Invoices",
-    value: "23",
-    icon: FileText,
-    description: "All time",
-  },
-  {
-    title: "Sent This Month",
-    value: "8",
-    icon: Send,
-    description: "Last 30 days",
-  },
-  {
-    title: "Settled",
-    value: "15",
-    icon: CheckCircle,
-    description: "Paid invoices",
-  },
-  {
-    title: "Pending",
-    value: "8",
-    icon: XCircle,
-    description: "Awaiting payment",
-  },
-];
-
-const Dashboard = () => {
+const Invoices = () => {
   const toast = useToast().toast;
+  const [open, setOpen] = React.useState<boolean>(false);
+  const [invoiceId, setInvoiceId] = React.useState<string | null>(null);
   const handleDownload = (id: string) => {
     toast({
       description: `Invoice ${id} has been downloaded.`
     });
   };
-  const handleSendEmail = (id: string) => {
-    toast({
-      title: "Email Sent",
-      description: `Invoice ${id} has been sent to the client.`,
-    });
-  };
-  const handleDelete = (id: string) => {
-    toast({
-      title: "Invoice Deleted",
-      description: `Invoice ${id} has been deleted.`,
-      variant: "destructive",
-    });
+  const handleView = (id: string) => {
+    setOpen(true);
+    setInvoiceId(id);
   };
   const token = sessionStorage.getItem("token");
   const [loading, setLoading] = React.useState<boolean>(false);
-  const [recentInvoices, setRecentInvoices] = React.useState<Array<IRecentInvoices> | null>(null);
+  const [invoices, setInvoices] = React.useState<Array<InvoicesInterface> | null>(null);
   const getRecent = async () => {
     setLoading(true);
     const options: AxiosRequestConfig = {
-      url: "invoice/list/recent",
+      url: "invoice/list",
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`
@@ -84,9 +51,9 @@ const Dashboard = () => {
     }
     try {
       const res = await axios.request(options);
-      const data: IRecentInvoicesResponse = res.data;
+      const data: InvoicesResponseInterface = res.data;
       if (data.success) {
-        setRecentInvoices(data.data);
+        setInvoices(data.data);
         setLoading(false);
         return;
       }
@@ -106,30 +73,20 @@ const Dashboard = () => {
   return (
     <DashboardLayout>
       <section className="p-4">
-        <h3 className="text-xl font-semibold">Dashboard</h3>
-        <p className="text-slate-600">Manage your invoices, track payments</p>
-        <div className="h-8" />
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {metrics.map((metric) => (
-            <Card key={metric.title}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  {metric.title}
-                </CardTitle>
-                <metric.icon className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{metric.value}</div>
-                <p className="text-xs text-muted-foreground">
-                  {metric.description}
-                </p>
-              </CardContent>
-            </Card>
-          ))}
+        <div className="flex  items-end gap-4 justify-between">
+          <div>
+            <h3 className="text-xl font-semibold">Invoices</h3>
+            <p className="text-slate-600">Manage your invoices, track payments</p>
+          </div>
+          <div>
+            <div className="relative w-full max-w-[300px] flex items-center">
+              <Search className="absolute text-slate-300 w-5 left-2" />
+              <Input className="w-full pl-8 text-slate-500" placeholder="Search..." />
+            </div>
+          </div>
         </div>
         <div className="h-8" />
         <div>
-          <h3 className="font-semibold">Recent Invoices</h3>
           <Table>
             <TableHeader>
               <TableRow>
@@ -150,7 +107,7 @@ const Dashboard = () => {
                     </TableRow>
                   ))
                   :
-                  recentInvoices && recentInvoices.map((invoice) => (
+                  invoices && invoices.map((invoice) => (
                     <TableRow key={invoice._id}>
                       <TableCell className="font-medium text-xs min-w-24">{invoice.invoice_number}</TableCell>
                       <TableCell className="text-xs">{invoice.customer_name}</TableCell>
@@ -166,15 +123,15 @@ const Dashboard = () => {
                       <TableCell className="text-xs min-w-28">{(invoice.created_at)}</TableCell>
                       <TableCell>
                         <div className="flex space-x-2 justify-center">
-                          <Button variant="outline" size="icon" onClick={() => handleSendEmail(invoice.invoice_number)}>
-                            <Mail className="h-4 w-4" />
+                          <Button variant="outline" size="icon" onClick={() => handleView(invoice._id)}>
+                            <Eye className="h-4 w-4" />
                           </Button>
-                          <Button variant="outline" size="icon" onClick={() => handleDownload(invoice.invoice_number)}>
+                          <Button variant="outline" size="icon" onClick={() => handleDownload(invoice._id)}>
                             <Download className="h-4 w-4" />
                           </Button>
-                          {/* <Button variant="destructive" size="icon" onClick={() => handleDelete(invoice.invoice_number)}>
+                          <Button variant="destructive" size="icon">
                             <Trash2 className="h-4 w-4" />
-                          </Button> */}
+                          </Button>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -184,8 +141,9 @@ const Dashboard = () => {
           </Table>
         </div>
       </section>
+      { open && <View open={open} close={() => setOpen(false)} invoiceId={invoiceId} /> }
     </DashboardLayout>
   )
 }
 
-export default Dashboard;
+export default Invoices;

@@ -47,9 +47,9 @@ const Login = () => {
         setError("Email or password is incorrect");
         return;
       }
-      sessionStorage.setItem("user_id", data.user.id);
-      sessionStorage.setItem("email", data.user.email);
-      sessionStorage.setItem("token", data.access_token);
+      sessionStorage.setItem("user_id", data.data.user.id);
+      sessionStorage.setItem("email", data.data.user.email);
+      sessionStorage.setItem("token", data.data.access_token);
       window.location.replace("/dashboard");
     } catch (err: unknown) {
       const catchError = err as AxiosError;

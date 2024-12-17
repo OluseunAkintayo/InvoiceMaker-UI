@@ -6,6 +6,7 @@ import ResetPassword from './Pages/Auth/ResetPassword.tsx';
 import NotFound from './Pages/NotFound';
 import Dashboard from './Pages/Dashboard';
 import Home from './Pages/Home/index.tsx';
+import Invoices from './Pages/Dashboard/Invoices/index.tsx';
 
 function App() {
 
@@ -33,6 +34,10 @@ function App() {
     {
       path: "/dashboard",
       element: <Dashboard />
+    },
+    {
+      path: "/dashboard/invoices",
+      element: <Invoices />
     },
     {
       path: "*",

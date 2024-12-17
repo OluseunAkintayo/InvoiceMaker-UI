@@ -11,8 +11,6 @@ interface IPrintComponent {
 }
 export const PrintComponent = ({ invoiceFields, total, invoiceItems }: IPrintComponent) => {
   return (
-
-    <div className="hidden">
       <div id="invoice" className="p-4 scale-95">
         <div className="flex gap-4 justify-between items-center">
           <div>
@@ -104,6 +102,5 @@ export const PrintComponent = ({ invoiceFields, total, invoiceItems }: IPrintCom
           <p>{invoiceFields.notes}</p>
         </div>
       </div>
-    </div>
   )
 }

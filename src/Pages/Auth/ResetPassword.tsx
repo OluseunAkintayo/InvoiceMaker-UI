@@ -4,7 +4,6 @@ import { Input } from '@/components/ui/input';
 import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 import { Eye, EyeOff, Loader } from 'lucide-react';
 import React from 'react'
-import { Link } from 'react-router-dom';
 import { ILoginResponse } from '@/lib/types';
 
 
@@ -28,7 +27,7 @@ const ResetPassword = () => {
     setLoading(true);
     const config: AxiosRequestConfig = {
       method: "POST",
-      url: "auth/user/get-otp",
+      url: "auth/get-otp",
       headers: {
         "Access-Control-Allow-Origin": "*"
       },
@@ -136,7 +135,7 @@ const ResetPassword = () => {
               stage === 2 &&
               <form onSubmit={submit2} autoComplete='stage3' className='grid gap-4'>
                 <div className='relative'>
-                  <Input placeholder='Enter password' name="password" className='pr-12' required  type={visibility ? "text" : "password"} onChange={handleChange} />
+                  <Input placeholder='Enter password' name="password" className='pr-12' required type={visibility ? "text" : "password"} onChange={handleChange} />
                   <Button onClick={toggle} type="button" variant={"outline"} className='p-0 h-8 w-8 rounded-full border-none bg-slate-200 absolute top-1 right-1'>
                     {
                       visibility ? <EyeOff className='opacity-65' /> : <Eye className='opacity-65' />

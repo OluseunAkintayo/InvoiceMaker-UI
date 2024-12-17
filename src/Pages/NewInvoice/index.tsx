@@ -71,7 +71,7 @@ const NewInvoice = () => {
     const elem = document.getElementById("invoice");
     setTimeout(() => {
       html2pdf(elem, {
-        filename: 'Invoice ' + watch().invoiceNumber
+        filename: 'Invoice ' + watch().invoiceNumber,
       });
       setLoading(false);
     }, 2000);
@@ -440,7 +440,9 @@ const NewInvoice = () => {
           </div>
         </div>
       </form>
-      <PrintComponent invoiceFields={watch()} total={total} invoiceItems={invoiceItems} />
+      <div className="hidden">
+        <PrintComponent invoiceFields={watch()} total={total} invoiceItems={invoiceItems} />
+      </div>
     </section>
   )
 }

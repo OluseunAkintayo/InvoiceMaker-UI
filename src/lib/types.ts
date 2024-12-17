@@ -1,10 +1,12 @@
 export interface ILoginResponse {
   success: boolean;
-  access_token: string;
-  expiration: string;
-  user: {
-    id: string;
-    email: string;
+  data: {
+    access_token: string;
+    expiration: string;
+    user: {
+      id: string;
+      email: string;
+    }
   }
 }
 
@@ -33,4 +35,8 @@ export interface IInvoiceFields {
   dueBalance?: number;
   currency: string;
   notes?: string;
+}
+
+export interface IInvoice extends IInvoiceFields {
+  invoice_items: Array<IInvoiceItem>
 }
