@@ -5,7 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import axios, { AxiosRequestConfig } from "axios";
-import { CheckCircle, Download, FileText, Mail, Send, XCircle } from "lucide-react";
+import { CheckCircle, Download, FileText, Send, XCircle } from "lucide-react";
 import React from "react";
 
 interface IRecentInvoices {
@@ -57,19 +57,7 @@ const Dashboard = () => {
       description: `Invoice ${id} has been downloaded.`
     });
   };
-  const handleSendEmail = (id: string) => {
-    toast({
-      title: "Email Sent",
-      description: `Invoice ${id} has been sent to the client.`,
-    });
-  };
-  const handleDelete = (id: string) => {
-    toast({
-      title: "Invoice Deleted",
-      description: `Invoice ${id} has been deleted.`,
-      variant: "destructive",
-    });
-  };
+  
   const token = sessionStorage.getItem("token");
   const [loading, setLoading] = React.useState<boolean>(false);
   const [recentInvoices, setRecentInvoices] = React.useState<Array<IRecentInvoices> | null>(null);

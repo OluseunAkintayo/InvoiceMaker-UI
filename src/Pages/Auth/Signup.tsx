@@ -48,10 +48,6 @@ const Signup = () => {
       if (!data.success) {
         return;
       }
-      sessionStorage.setItem("user", data.data.email);
-      sessionStorage.setItem("token", data.data.token);
-      sessionStorage.setItem("exp", data.data.exp);
-      sessionStorage.setItem("role", data.data.role.toString());
       navigate("/dashboard");
     } catch (error) {
       console.log({ error });
