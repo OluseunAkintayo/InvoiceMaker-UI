@@ -18,7 +18,7 @@ export const PrintComponent = ({ invoiceFields, total, invoiceItems }: IPrintCom
               <span className="p-3 bg-slate-700 rounded-tr-md rounded-bl-md"><FileText className="text-white" /></span>
               <h3 className="text-5xl font-semibold mb-4 text-slate-700">Invoice</h3>
             </div>
-            <p>{invoiceFields.invoiceNumber}</p>
+            <p>{invoiceFields.invoice_number}</p>
           </div>
           <div>
             {invoiceFields.logo !== "/assets/200x144.svg" && <img src={invoiceFields.logo} alt="logo" className="rounded-md max-w-[100px]" />}
@@ -28,23 +28,23 @@ export const PrintComponent = ({ invoiceFields, total, invoiceItems }: IPrintCom
           <div className="space-y-2">
             <h3 className="font-bold text-xl text-slate-700">Biller:</h3>
             <div>
-              <p className="text-sm">{invoiceFields.billerName}</p>
-              <p className="text-sm">{invoiceFields.billerAddress}</p>
-              <p className="text-sm">{invoiceFields.billerEmail}</p>
+              <p className="text-sm">{invoiceFields.biller_name}</p>
+              <p className="text-sm">{invoiceFields.biller_address}</p>
+              <p className="text-sm">{invoiceFields.biller_email}</p>
             </div>
           </div>
           <div className="space-y-2">
             <h3 className="font-bold text-xl text-slate-700">Bill To:</h3>
             <div>
-              <p className="text-sm">{invoiceFields.customerName}</p>
-              <p className="text-sm">{invoiceFields.customerAddress}</p>
-              <p className="text-sm">{invoiceFields.customerEmail}</p>
+              <p className="text-sm">{invoiceFields.customer_name}</p>
+              <p className="text-sm">{invoiceFields.customer_address}</p>
+              <p className="text-sm">{invoiceFields.customer_email}</p>
             </div>
           </div>
           <div className="space-y-2 flex items-end">
             <div>
-              <p className="text-sm">Invoice Date: {new Date(invoiceFields.billDate).toLocaleDateString()}</p>
-              <p className="text-sm">Due Date: {new Date(invoiceFields.dueDate).toLocaleDateString()}</p>
+              <p className="text-sm">Invoice Date: {new Date(invoiceFields.bill_date).toLocaleDateString()}</p>
+              <p className="text-sm">Due Date: {new Date(invoiceFields.due_date).toLocaleDateString()}</p>
             </div>
           </div>
         </div>

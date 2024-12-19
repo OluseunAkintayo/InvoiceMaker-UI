@@ -166,9 +166,9 @@ const Dashboard = () => {
                       <TableCell className="text-xs min-w-28">{(invoice.created_at)}</TableCell>
                       <TableCell>
                         <div className="flex space-x-2 justify-center">
-                          <Button variant="outline" size="icon" onClick={() => handleSendEmail(invoice.invoice_number)}>
+                          {/* <Button variant="outline" size="icon" onClick={() => handleSendEmail(invoice.invoice_number)}>
                             <Mail className="h-4 w-4" />
-                          </Button>
+                          </Button> */}
                           <Button variant="outline" size="icon" onClick={() => handleDownload(invoice.invoice_number)}>
                             <Download className="h-4 w-4" />
                           </Button>

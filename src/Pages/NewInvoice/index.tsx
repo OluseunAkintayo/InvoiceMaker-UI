@@ -44,20 +44,20 @@ const NewInvoice = () => {
 
   const schema = yup.object().shape({
     logo: yup.string(),
-    invoiceNumber: yup.string().required("Invoice number is required"),
-    billerName: yup.string().required("Biller name is required"),
-    billerAddress: yup.string().required("Biller address is required"),
-    billerEmail: yup.string().required("Biller email is required"),
-    customerName: yup.string().required("Customer name is required"),
-    customerAddress: yup.string(),
-    customerEmail: yup.string().email("Invalid email input"),
-    billDate: yup.date().typeError("Invalid date").required("Required"),
-    dueDate: yup.date().typeError("Invalid date").required("Required"),
+    invoice_number: yup.string().required("Invoice number is required"),
+    biller_name: yup.string().required("Biller name is required"),
+    biller_address: yup.string().required("Biller address is required"),
+    biller_email: yup.string().required("Biller email is required"),
+    customer_name: yup.string().required("Customer name is required"),
+    customer_address: yup.string(),
+    customer_email: yup.string().email("Invalid email input"),
+    bill_date: yup.date().typeError("Invalid date").required("Required"),
+    due_date: yup.date().typeError("Invalid date").required("Required"),
     tax: yup.number().typeError("Entry must be a number").required("Tax field is required"),
     shipping: yup.number().typeError("Entry must be a number"),
     discount: yup.number().typeError("Entry must be a number").required("Required"),
-    amountPaid: yup.number().typeError("Entry must be a number"),
-    dueBalance: yup.number().typeError("Entry must be a number"),
+    amount_paid: yup.number().typeError("Entry must be a number"),
+    due_balance: yup.number().typeError("Entry must be a number"),
     currency: yup.string().required("Currency is required"),
     notes: yup.string(),
     terms: yup.string()
@@ -71,7 +71,7 @@ const NewInvoice = () => {
     const elem = document.getElementById("invoice");
     setTimeout(() => {
       html2pdf(elem, {
-        filename: 'Invoice ' + watch().invoiceNumber,
+        filename: 'Invoice ' + watch().invoice_number,
       });
       setLoading(false);
     }, 2000);
@@ -105,30 +105,30 @@ const NewInvoice = () => {
     setTotal(sum);
   }, [invoiceItems]);
 
-  const generateInvoiceNumber = () => {
+  const generateinvoice_number = () => {
     const num = Math.floor(10000000 + Math.random() * 99999999);
-    setValue("invoiceNumber", "#" + num.toString());
-    sessionStorage.setItem("invoiceNumber", watch("invoiceNumber"));
+    setValue("invoice_number", "#" + num.toString());
+    sessionStorage.setItem("invoice_number", watch("invoice_number"));
   }
 
   React.useEffect(() => {
-    const invoiceNumber = sessionStorage.getItem("invoiceNumber");
-    if (invoiceNumber) {
-      setValue("invoiceNumber", invoiceNumber);
+    const invoice_number = sessionStorage.getItem("invoice_number");
+    if (invoice_number) {
+      setValue("invoice_number", invoice_number);
     } else {
-      generateInvoiceNumber();
+      generateinvoice_number();
     }
 
     setValue("logo", "/assets/200x144.svg");
     setValue("discount", 0);
     setValue("tax", 7.5);
     setValue("currency", sessionStorage.getItem("currency") || '');
-    setValue("billerName", sessionStorage.getItem("billerName") || '');
-    setValue("billerAddress", sessionStorage.getItem("billerAddress") || '');
-    setValue("billerEmail", sessionStorage.getItem("billerEmail") || '');
-    setValue("customerName", sessionStorage.getItem("customerName") || '');
-    setValue("customerAddress", sessionStorage.getItem("customerAddress") || '');
-    setValue("customerEmail", sessionStorage.getItem("customerEmail") || '');
+    setValue("biller_name", sessionStorage.getItem("biller_name") || '');
+    setValue("biller_address", sessionStorage.getItem("biller_address") || '');
+    setValue("biller_email", sessionStorage.getItem("biller_email") || '');
+    setValue("customer_name", sessionStorage.getItem("customer_name") || '');
+    setValue("customer_address", sessionStorage.getItem("customer_address") || '');
+    setValue("customer_email", sessionStorage.getItem("customer_email") || '');
     setValue("notes", sessionStorage.getItem("notes") || '');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -157,8 +157,8 @@ const NewInvoice = () => {
               <h3 className="text-5xl font-semibold mb-8">Invoice</h3>
               {!mobile &&
                 <div className="relative bg-red-200">
-                  <Input className="text-xs tracking-wide" {...register("invoiceNumber", { onBlur: e => sessionStorage.setItem("invoiceNumber", e.target.value) })} />
-                  <Button onClick={generateInvoiceNumber} type="button" className="p-0 h-8 w-8 absolute top-1 bottom-1 right-1 aspect-square rounded-full bg-slate-200 hover:bg-slate-200/80"><RotateCcw className="text-slate-700 scale-90" /></Button>
+                  <Input className="text-xs tracking-wide" {...register("invoice_number", { onBlur: e => sessionStorage.setItem("invoice_number", e.target.value) })} />
+                  <Button onClick={generateinvoice_number} type="button" className="p-0 h-8 w-8 absolute top-1 bottom-1 right-1 aspect-square rounded-full bg-slate-200 hover:bg-slate-200/80"><RotateCcw className="text-slate-700 scale-90" /></Button>
                 </div>
               }
             </div>
@@ -169,10 +169,10 @@ const NewInvoice = () => {
                 <Input type="file" accept=".png, .jpg, .jpeg, .svg, .webp" {...register("logo", { onChange: handleImageUpload })} className="hidden" id="logo" />
               </label>
               {mobile && <div className="relative">
-                <Input {...register("invoiceNumber", {
-                  onBlur: e => sessionStorage.setItem("invoiceNumber", e.target.value)
+                <Input {...register("invoice_number", {
+                  onBlur: e => sessionStorage.setItem("invoice_number", e.target.value)
                 })} />
-                <Button onClick={generateInvoiceNumber} type="button" className="p-0 h-8 w-8 absolute top-1 bottom-1 right-1 aspect-square rounded-full bg-slate-200 hover:bg-slate-200/80"><RotateCcw className="text-slate-700 scale-90" /></Button>
+                <Button onClick={generateinvoice_number} type="button" className="p-0 h-8 w-8 absolute top-1 bottom-1 right-1 aspect-square rounded-full bg-slate-200 hover:bg-slate-200/80"><RotateCcw className="text-slate-700 scale-90" /></Button>
               </div>}
             </div>
           </div>
@@ -180,59 +180,59 @@ const NewInvoice = () => {
             <h3 className="font-semibold text-slate-700 sm:hidden">Biller</h3>
             <div className="">
               <Label className="hidden sm:inline-block mb-2">Biller name</Label>
-              <Input className="shadow-sm" {...register("billerName", {
-                onBlur: e => sessionStorage.setItem("billerName", e.target.value)
+              <Input className="shadow-sm" {...register("biller_name", {
+                onBlur: e => sessionStorage.setItem("biller_name", e.target.value)
               })} placeholder="Biller name" />
-              {formErrors.billerName && <p className="text-destructive text-xs flex items-center mt-1"><OctagonAlert className="h-4" /> {formErrors.billerName.message}</p>}
+              {formErrors.biller_name && <p className="text-destructive text-xs flex items-center mt-1"><OctagonAlert className="h-4" /> {formErrors.biller_name.message}</p>}
             </div>
             <div>
               <Label className="hidden sm:inline-block mb-2">Biller Address</Label>
-              <Input className="shadow-sm" {...register("billerAddress", {
-                onBlur: e => sessionStorage.setItem("billerAddress", e.target.value)
+              <Input className="shadow-sm" {...register("biller_address", {
+                onBlur: e => sessionStorage.setItem("biller_address", e.target.value)
               })} placeholder="Biller address" />
-              {formErrors.billerAddress && <p className="text-destructive text-xs flex items-center mt-1"><OctagonAlert className="h-4" /> {formErrors.billerAddress.message}</p>}
+              {formErrors.biller_address && <p className="text-destructive text-xs flex items-center mt-1"><OctagonAlert className="h-4" /> {formErrors.biller_address.message}</p>}
             </div>
             <div>
               <Label className="hidden sm:inline-block mb-2">Biller Email</Label>
-              <Input className="shadow-sm" {...register("billerEmail", {
-                onBlur: e => sessionStorage.setItem("billerEmail", e.target.value)
+              <Input className="shadow-sm" {...register("biller_email", {
+                onBlur: e => sessionStorage.setItem("biller_email", e.target.value)
               })} placeholder="Biller Email" />
-              {formErrors.billerEmail && <p className="text-destructive text-xs flex items-center mt-1"><OctagonAlert className="h-4" /> {formErrors.billerEmail.message}</p>}
+              {formErrors.biller_email && <p className="text-destructive text-xs flex items-center mt-1"><OctagonAlert className="h-4" /> {formErrors.biller_email.message}</p>}
             </div>
             <h3 className="font-semibold text-slate-700 sm:hidden mt-4">Client</h3>
             <div>
               <Label className="hidden sm:inline-block mb-2">Client Name</Label>
-              <Input className="shadow-sm" {...register("customerName", {
-                onBlur: e => sessionStorage.setItem("customerName", e.target.value)
+              <Input className="shadow-sm" {...register("customer_name", {
+                onBlur: e => sessionStorage.setItem("customer_name", e.target.value)
               })} placeholder="Client company name" />
-              {formErrors.customerName && <p className="text-destructive text-xs flex items-center mt-1"><OctagonAlert className="h-4" /> {formErrors.customerName.message}</p>}
+              {formErrors.customer_name && <p className="text-destructive text-xs flex items-center mt-1"><OctagonAlert className="h-4" /> {formErrors.customer_name.message}</p>}
             </div>
             <div>
               <Label className="hidden sm:inline-block mb-2">Client Address</Label>
-              <Input className="shadow-sm" {...register("customerAddress", {
-                onBlur: e => sessionStorage.setItem("customerAddress", e.target.value)
+              <Input className="shadow-sm" {...register("customer_address", {
+                onBlur: e => sessionStorage.setItem("customer_address", e.target.value)
               })} placeholder="Client address" />
-              {formErrors.customerAddress && <p className="text-destructive text-xs flex items-center mt-1"><OctagonAlert className="h-4" /> {formErrors.customerAddress.message}</p>}
+              {formErrors.customer_address && <p className="text-destructive text-xs flex items-center mt-1"><OctagonAlert className="h-4" /> {formErrors.customer_address.message}</p>}
             </div>
             <div>
               <Label className="hidden sm:inline-block mb-2">Client Email</Label>
-              <Input className="shadow-sm" {...register("customerEmail", {
-                onBlur: e => sessionStorage.setItem("customerEmail", e.target.value)
+              <Input className="shadow-sm" {...register("customer_email", {
+                onBlur: e => sessionStorage.setItem("customer_email", e.target.value)
               })} placeholder="Client Email" />
-              {formErrors.customerEmail && <p className="text-destructive text-xs flex items-center mt-1"><OctagonAlert className="h-4" /> {formErrors.customerEmail.message}</p>}
+              {formErrors.customer_email && <p className="text-destructive text-xs flex items-center mt-1"><OctagonAlert className="h-4" /> {formErrors.customer_email.message}</p>}
             </div>
             <div className="w-full hidden sm:block">
               <Label className="inline-block mb-2">Invoice date</Label>
-              <Input className="shadow-sm" type="date" {...register("billDate", {
-                onBlur: e => sessionStorage.setItem("billDate", e.target.value)
+              <Input className="shadow-sm" type="date" {...register("bill_date", {
+                onBlur: e => sessionStorage.setItem("bill_date", e.target.value)
               })} />
-              {formErrors.billDate && <p className="text-destructive text-xs flex items-center mt-1"><OctagonAlert className="h-4" /> {formErrors.billDate.message}</p>}
+              {formErrors.bill_date && <p className="text-destructive text-xs flex items-center mt-1"><OctagonAlert className="h-4" /> {formErrors.bill_date.message}</p>}
             </div>
             <div className="w-full hidden sm:block">
               <Label className="inline-block mb-2">Invoice Due Date</Label>
               <Input
-                className="shadow-sm" type="date" {...register("dueDate", { onBlur: e => sessionStorage.setItem("dueDate", e.target.value) })} />
-              {formErrors.dueDate && <p className="text-destructive text-xs flex items-center mt-1"><OctagonAlert className="h-4" /> {formErrors.dueDate.message}</p>}
+                className="shadow-sm" type="date" {...register("due_date", { onBlur: e => sessionStorage.setItem("due_date", e.target.value) })} />
+              {formErrors.due_date && <p className="text-destructive text-xs flex items-center mt-1"><OctagonAlert className="h-4" /> {formErrors.due_date.message}</p>}
             </div>
 
             {
@@ -240,17 +240,17 @@ const NewInvoice = () => {
               <div className="grid grid-cols-2 gap-4 -mt-2">
                 <div className="w-full">
                   <Label className="inline-block mb-2">Invoice date</Label>
-                  <Input className="shadow-sm" type="date" {...register("billDate", {
-                    onBlur: e => sessionStorage.setItem("billDate", e.target.value)
+                  <Input className="shadow-sm" type="date" {...register("bill_date", {
+                    onBlur: e => sessionStorage.setItem("bill_date", e.target.value)
                   })} style={{ width: 'calc(50vw - 1.5rem)' }} />
-                  {formErrors.billDate && <p className="text-destructive text-xs flex items-center mt-1"><OctagonAlert className="h-4" /> {formErrors.billDate.message}</p>}
+                  {formErrors.bill_date && <p className="text-destructive text-xs flex items-center mt-1"><OctagonAlert className="h-4" /> {formErrors.bill_date.message}</p>}
                 </div>
                 <div className="w-full">
                   <Label className="inline-block mb-2">Invoice Due Date</Label>
-                  <Input className="shadow-sm" type="date" {...register("dueDate", {
-                    onBlur: e => sessionStorage.setItem("dueDate", e.target.value)
+                  <Input className="shadow-sm" type="date" {...register("due_date", {
+                    onBlur: e => sessionStorage.setItem("due_date", e.target.value)
                   })} style={{ width: 'calc(50vw - 1.5rem)' }} />
-                  {formErrors.dueDate && <p className="text-destructive text-xs flex items-center mt-1"><OctagonAlert className="h-4" /> {formErrors.dueDate.message}</p>}
+                  {formErrors.due_date && <p className="text-destructive text-xs flex items-center mt-1"><OctagonAlert className="h-4" /> {formErrors.due_date.message}</p>}
                 </div>
               </div>
             }

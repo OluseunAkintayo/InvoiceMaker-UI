@@ -18,25 +18,32 @@ export interface IInvoiceItem {
 }
 
 export interface IInvoiceFields {
-  logo?: string;
-  invoiceNumber: string;
-  billerName: string;
-  billerAddress: string;
-  billerEmail: string;
-  customerName: string;
-  customerAddress?: string;
-  customerEmail?: string;
-  billDate: Date;
-  dueDate: Date;
+  invoice_number: string;
+  biller_name: string;
+  biller_address: string;
+  biller_email: string;
+  customer_name: string;
+  customer_address?: string;
+  customer_email?: string;
+  bill_date: Date;
+  due_date: Date;
   tax: number;
-  shipping?: number;
   discount: number;
-  amountPaid?: number;
-  dueBalance?: number;
   currency: string;
   notes?: string;
+  logo?: string;
+  shipping?: number;
+  amount_paid?: number;
+  due_balance?: number;
 }
 
 export interface IInvoice extends IInvoiceFields {
   invoice_items: Array<IInvoiceItem>
+}
+
+export interface ISingleInvoice extends IInvoice {
+  _id: string;
+  created_at: string;
+  status: string;
+  created_by: string;
 }
