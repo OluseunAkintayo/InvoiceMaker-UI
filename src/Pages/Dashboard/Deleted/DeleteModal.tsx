@@ -37,7 +37,7 @@ interface InvoiceData {
   }
 }
 
-const View = ({ open, close, invoiceId }: IView) => {
+const DeleteModal = ({ open, close, invoiceId }: IView) => {
   const toast = useToast().toast;
   const [loading, setLoading] = React.useState<boolean>(true);
   const [invoice, setInvoice] = React.useState<ISingleInvoice | null>(null);
@@ -46,8 +46,8 @@ const View = ({ open, close, invoiceId }: IView) => {
   const getInvoice = async (id: string) => {
     setLoading(true);
     const options: AxiosRequestConfig = {
-      url: "invoice/view/" + id,
-      method: "GET",
+      url: "invoice/delete?id=" + id,
+      method: "DELETE",
       headers: {
         Authorization: `Bearer ${token}`
       }
@@ -202,4 +202,4 @@ const View = ({ open, close, invoiceId }: IView) => {
   )
 }
 
-export default View;
+export default DeleteModal;

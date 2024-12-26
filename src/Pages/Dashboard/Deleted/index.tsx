@@ -1,14 +1,14 @@
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import axios, { AxiosError, AxiosRequestConfig } from "axios";
-import { CheckCircle, Download, FileText, Send, XCircle } from "lucide-react";
+import { Search, Trash2, Undo2 } from "lucide-react";
 import React from "react";
 
-interface IRecentInvoices {
+interface InvoicesInterface {
   _id: string;
   invoice_number: string;
   customer_name: string;
@@ -18,53 +18,28 @@ interface IRecentInvoices {
   created_at: string;
 }
 
-interface IRecentInvoicesResponse {
+interface InvoicesResponseInterface {
   success: boolean;
-  data: Array<IRecentInvoices>;
+  data: Array<InvoicesInterface>;
 }
 
-const metrics = [
-  {
-    title: "Total Invoices",
-    value: "23",
-    icon: FileText,
-    description: "All time",
-  },
-  {
-    title: "Sent This Month",
-    value: "8",
-    icon: Send,
-    description: "Last 30 days",
-  },
-  {
-    title: "Settled",
-    value: "15",
-    icon: CheckCircle,
-    description: "Paid invoices",
-  },
-  {
-    title: "Pending",
-    value: "8",
-    icon: XCircle,
-    description: "Awaiting payment",
-  },
-];
-
-const Dashboard = () => {
+const DeletedInvoices = () => {
   const toast = useToast().toast;
+  const [search, setSearch] = React.useState<string>("");
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value);
   const handleDownload = (id: string) => {
     toast({
       description: `Invoice ${id} has been downloaded.`
     });
   };
-  
+
   const token = sessionStorage.getItem("token");
   const [loading, setLoading] = React.useState<boolean>(false);
-  const [recentInvoices, setRecentInvoices] = React.useState<Array<IRecentInvoices> | null>(null);
+  const [deletedInvoices, setDeletedInvoices] = React.useState<Array<InvoicesInterface> | null>(null);
   const getRecent = async () => {
     setLoading(true);
     const options: AxiosRequestConfig = {
-      url: "invoice/list/recent",
+      url: "invoice/deleted_items",
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`
@@ -72,17 +47,16 @@ const Dashboard = () => {
     }
     try {
       const res = await axios.request(options);
-      const data: IRecentInvoicesResponse = res.data;
+      const data: InvoicesResponseInterface = res.data;
       if (data.success) {
-        setRecentInvoices(data.data);
+        setDeletedInvoices(data.data);
         setLoading(false);
         return;
       }
       setLoading(false);
-      console.log(res);
     } catch (error) {
       const err = error as AxiosError;
-      if(err.status === 401) {
+      if (err.status === 401) {
         window.location.replace("/auth/login");
       }
       setLoading(false);
@@ -94,33 +68,25 @@ const Dashboard = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  console.log({ deletedInvoices });
+
   return (
     <DashboardLayout>
       <section className="p-4">
-        <h3 className="text-xl font-semibold">Dashboard</h3>
-        <p className="text-slate-600">Manage your invoices, track payments</p>
-        <div className="h-8" />
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {metrics.map((metric) => (
-            <Card key={metric.title}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  {metric.title}
-                </CardTitle>
-                <metric.icon className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{metric.value}</div>
-                <p className="text-xs text-muted-foreground">
-                  {metric.description}
-                </p>
-              </CardContent>
-            </Card>
-          ))}
+        <div className="flex  items-end gap-4 justify-between">
+          <div>
+            <h3 className="text-xl font-semibold">Invoices</h3>
+            <p className="text-slate-600">Manage your invoices, track payments</p>
+          </div>
+          <div>
+            <div className="relative w-full max-w-[300px] flex items-center">
+              <Search className="absolute text-slate-300 w-5 left-2" />
+              <Input onChange={handleSearch} value={search} className="w-full pl-8 text-slate-500" placeholder="Search..." />
+            </div>
+          </div>
         </div>
         <div className="h-8" />
         <div>
-          <h3 className="font-semibold">Recent Invoices</h3>
           <Table>
             <TableHeader>
               <TableRow>
@@ -141,7 +107,11 @@ const Dashboard = () => {
                     </TableRow>
                   ))
                   :
-                  (!loading && recentInvoices) && recentInvoices.map((invoice) => (
+                  deletedInvoices && deletedInvoices.filter(item => {
+                    if (search.trim() === "") return item;
+                    if (item?.invoice_number?.toLowerCase().includes(search.toLowerCase())) return item;
+                    if (item?.customer_name?.toLowerCase().includes(search.toLowerCase())) return item;
+                  }).map((invoice) => (
                     <TableRow key={invoice._id}>
                       <TableCell className="font-medium text-xs min-w-24">{invoice.invoice_number}</TableCell>
                       <TableCell className="text-xs">{invoice.customer_name}</TableCell>
@@ -157,15 +127,12 @@ const Dashboard = () => {
                       <TableCell className="text-xs min-w-28">{(invoice.created_at)}</TableCell>
                       <TableCell>
                         <div className="flex space-x-2 justify-center">
-                          {/* <Button variant="outline" size="icon" onClick={() => handleSendEmail(invoice.invoice_number)}>
-                            <Mail className="h-4 w-4" />
-                          </Button> */}
-                          <Button variant="outline" size="icon" onClick={() => handleDownload(invoice.invoice_number)}>
-                            <Download className="h-4 w-4" />
+                          <Button variant="outline" size="icon" onClick={() => handleDownload(invoice._id)}>
+                            <Undo2 className="h-4 w-4" />
                           </Button>
-                          {/* <Button variant="destructive" size="icon" onClick={() => handleDelete(invoice.invoice_number)}>
+                          <Button variant="destructive" size="icon">
                             <Trash2 className="h-4 w-4" />
-                          </Button> */}
+                          </Button>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -179,4 +146,4 @@ const Dashboard = () => {
   )
 }
 
-export default Dashboard;
+export default DeletedInvoices;

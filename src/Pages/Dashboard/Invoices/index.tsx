@@ -4,10 +4,11 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import axios, { AxiosRequestConfig } from "axios";
+import axios, { AxiosError, AxiosRequestConfig } from "axios";
 import { Download, Eye, Search, Trash2 } from "lucide-react";
 import React from "react";
 import View from "./View";
+import DeleteModal from "./DeleteModal";
 
 interface InvoicesInterface {
   _id: string;
@@ -27,7 +28,10 @@ interface InvoicesResponseInterface {
 const Invoices = () => {
   const toast = useToast().toast;
   const [open, setOpen] = React.useState<boolean>(false);
+  const [openDelete, setOpenDelete] = React.useState<boolean>(false);
   const [invoiceId, setInvoiceId] = React.useState<string | null>(null);
+  const [search, setSearch] = React.useState<string>("");
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value);
   const handleDownload = (id: string) => {
     toast({
       description: `Invoice ${id} has been downloaded.`
@@ -37,6 +41,10 @@ const Invoices = () => {
     setOpen(true);
     setInvoiceId(id);
   };
+  const handleDeleteModal = (id: string) => {
+    setInvoiceId(id);
+    setOpenDelete(true);
+  }
   const token = sessionStorage.getItem("token");
   const [loading, setLoading] = React.useState<boolean>(false);
   const [invoices, setInvoices] = React.useState<Array<InvoicesInterface> | null>(null);
@@ -58,9 +66,11 @@ const Invoices = () => {
         return;
       }
       setLoading(false);
-      console.log(res);
     } catch (error) {
-      console.log({ error });
+      const err = error as AxiosError;
+      if (err.status === 401) {
+        window.location.replace("/auth/login");
+      }
       setLoading(false);
     }
   }
@@ -81,7 +91,7 @@ const Invoices = () => {
           <div>
             <div className="relative w-full max-w-[300px] flex items-center">
               <Search className="absolute text-slate-300 w-5 left-2" />
-              <Input className="w-full pl-8 text-slate-500" placeholder="Search..." />
+              <Input onChange={handleSearch} value={search} className="w-full pl-8 text-slate-500" placeholder="Search..." />
             </div>
           </div>
         </div>
@@ -107,13 +117,17 @@ const Invoices = () => {
                     </TableRow>
                   ))
                   :
-                  invoices && invoices.map((invoice) => (
+                  invoices && invoices.filter(item => {
+                    if (search.trim() === "") return item;
+                    if (item?.invoice_number?.toLowerCase().includes(search.toLowerCase())) return item;
+                    if (item?.customer_name?.toLowerCase().includes(search.toLowerCase())) return item;
+                  }).map((invoice) => (
                     <TableRow key={invoice._id}>
                       <TableCell className="font-medium text-xs min-w-24">{invoice.invoice_number}</TableCell>
                       <TableCell className="text-xs">{invoice.customer_name}</TableCell>
                       <TableCell className="text-xs">{invoice.currency + invoice.invoice_total}</TableCell>
                       <TableCell>
-                        <span className={`capitalize p-2 rounded-full text-xs ${invoice.status.toLowerCase() === "settled"
+                        <span className={`capitalize p-2 rounded-full text-xs ${invoice?.status?.toLowerCase() === "settled"
                           ? "bg-green-100 text-green-800"
                           : "bg-yellow-100 text-yellow-800"
                           }`}>
@@ -129,7 +143,7 @@ const Invoices = () => {
                           <Button variant="outline" size="icon" onClick={() => handleDownload(invoice._id)}>
                             <Download className="h-4 w-4" />
                           </Button>
-                          <Button variant="destructive" size="icon">
+                          <Button variant="destructive" size="icon" onClick={() => handleDeleteModal(invoice._id)}>
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
@@ -141,7 +155,8 @@ const Invoices = () => {
           </Table>
         </div>
       </section>
-      { open && <View open={open} close={() => setOpen(false)} invoiceId={invoiceId} /> }
+      {open && <View open={open} close={() => setOpen(false)} invoiceId={invoiceId} />}
+      {openDelete && <DeleteModal open={openDelete} close={() => setOpenDelete(false)} invoiceId={invoiceId} fetchInvoice={getRecent} />}
     </DashboardLayout>
   )
 }

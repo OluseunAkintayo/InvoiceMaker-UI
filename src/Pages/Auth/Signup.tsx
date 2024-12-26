@@ -11,7 +11,7 @@ import { ILoginResponse } from '@/lib/types';
 
 const Signup = () => {
   const navigate = useNavigate();
-  const [signup, setSignup] = React.useState<{ email: string; password: string; }>({ email: "", password: "" });
+  const [signup, setSignup] = React.useState<{ email: string; password: string; displayName: string }>({ email: "", password: "", displayName: "" });
   const [loading, setLoading] = React.useState<boolean>(false);
 
   const handleSignupChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
@@ -34,7 +34,7 @@ const Signup = () => {
     setLoading(true);
     const config: AxiosRequestConfig = {
       method: "POST",
-      url: "auth/user/login",
+      url: "auth/user/signup",
       data: signup
     }
     try {
@@ -64,6 +64,10 @@ const Signup = () => {
         </CardHeader>
         <CardContent>
           <form onSubmit={submit} className='grid gap-4'>
+            <div className='grid gap-2'>
+              <Label htmlFor="email">Display Name</Label>
+              <Input placeholder='Enter display name' name="displayName" required value={signup.displayName} onChange={handleSignupChange} />
+            </div>
             <div className='grid gap-2'>
               <Label htmlFor="email">Email</Label>
               <Input placeholder='Enter email address' name="email" required value={signup.email} onChange={handleSignupChange} />

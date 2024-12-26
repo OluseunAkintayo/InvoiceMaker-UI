@@ -58,8 +58,33 @@ const Login = () => {
       setLoading(false);
     }
   }
+
   const handleGoogleLogin = async (res: CredentialResponse) => {
-    console.log(res);
+    console.log({ res });
+    const options: AxiosRequestConfig = {
+      url: `auth/signup/google?cred=${res.credential}`,
+      method: "POST"
+    }
+    try {
+      const response = await axios.request(options);
+      const data: ILoginResponse = response.data;
+      if (!data.success) {
+        setError("Email or password is incorrect");
+        return;
+      }
+      sessionStorage.setItem("user_id", data.data.user.id);
+      sessionStorage.setItem("email", data.data.user.email);
+      sessionStorage.setItem("token", data.data.access_token);
+      const url = sessionStorage.getItem("url");
+      if (url) {
+        window.location.replace(url);
+        return;
+      }
+      window.location.replace("/");
+      console.log(response.data);
+    } catch (error) {
+      console.log({ error });
+    }
   }
 
 
@@ -105,7 +130,9 @@ const Login = () => {
               </div>
             </div>
             <div className="mt-6 grid place-items-center">
-              <GoogleLogin onSuccess={(res) => handleGoogleLogin(res)} onError={handleError} />
+              {/* <Button> */}
+                <GoogleLogin onSuccess={(res) => handleGoogleLogin(res)} onError={handleError} />
+              {/* </Button> */}
             </div>
             <p className="mt-4 text-center text-sm text-gray-600">
               Don't have an account?{" "}

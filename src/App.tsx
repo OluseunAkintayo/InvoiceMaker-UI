@@ -7,13 +7,16 @@ import NotFound from './Pages/NotFound';
 import Dashboard from './Pages/Dashboard';
 import Home from './Pages/Home/index.tsx';
 import Invoices from './Pages/Dashboard/Invoices/index.tsx';
+import ProtectedRoute from './components/ProtectedRoute/index.tsx';
+import DeletedInvoices from './Pages/Dashboard/Deleted/index.tsx';
+import LandingPageLayout from './components/LandingPageLayout/index.tsx';
 
 function App() {
 
   const router = createBrowserRouter([
     {
       path: "/",
-      element: <NewInvoice />
+      element: <LandingPageLayout><NewInvoice /></LandingPageLayout>
     },
     {
       path: "/home",
@@ -33,11 +36,21 @@ function App() {
     },
     {
       path: "/dashboard",
-      element: <Dashboard />
-    },
-    {
-      path: "/dashboard/invoices",
-      element: <Invoices />
+      element: <ProtectedRoute />,
+      children: [
+        {
+          path: "",
+          element: <Dashboard />
+        },
+        {
+          path: "invoices",
+          element: <Invoices />
+        },
+        {
+          path: "deleted-invoices",
+          element: <DeletedInvoices />
+        }
+      ]
     },
     {
       path: "*",

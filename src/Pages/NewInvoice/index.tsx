@@ -146,7 +146,12 @@ const NewInvoice = () => {
     }
   }
 
-  React.useEffect(() => { window.scrollTo(0, 0) }, [])
+  React.useEffect(() => { window.scrollTo(0, 0) }, []);
+
+  React.useEffect(() => {
+    const url = window.location.pathname;
+    console.log({ url });
+  }, []);
 
   return (
     <section>
@@ -156,7 +161,7 @@ const NewInvoice = () => {
             <div className="space-y-0">
               <h3 className="text-5xl font-semibold mb-8">Invoice</h3>
               {!mobile &&
-                <div className="relative bg-red-200">
+                <div className="relative">
                   <Input className="text-xs tracking-wide" {...register("invoice_number", { onBlur: e => sessionStorage.setItem("invoice_number", e.target.value) })} />
                   <Button onClick={generateinvoice_number} type="button" className="p-0 h-8 w-8 absolute top-1 bottom-1 right-1 aspect-square rounded-full bg-slate-200 hover:bg-slate-200/80"><RotateCcw className="text-slate-700 scale-90" /></Button>
                 </div>

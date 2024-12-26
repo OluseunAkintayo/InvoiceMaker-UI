@@ -1,5 +1,6 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { IInvoiceFields, IInvoiceItem } from "@/lib/types";
+import { cn } from "@/lib/utils";
 import { FileText } from "lucide-react";
 import { LegacyRef } from "react";
 
@@ -11,7 +12,7 @@ interface IPrintComponent {
 }
 export const PrintComponent = ({ invoiceFields, total, invoiceItems }: IPrintComponent) => {
   return (
-      <div id="invoice" className="p-4 scale-95">
+      <div id="invoice" className="p-4">
         <div className="flex gap-4 justify-between items-center">
           <div>
             <div className="flex items-start gap-2">
@@ -20,7 +21,7 @@ export const PrintComponent = ({ invoiceFields, total, invoiceItems }: IPrintCom
             </div>
             <p>{invoiceFields.invoice_number}</p>
           </div>
-          <div>
+          <div className={cn(!invoiceFields.logo ||  invoiceFields.logo === '' ? "hidden" : "")}>
             {invoiceFields.logo !== "/assets/200x144.svg" && <img src={invoiceFields.logo} alt="logo" className="rounded-md max-w-[100px]" />}
           </div>
         </div>

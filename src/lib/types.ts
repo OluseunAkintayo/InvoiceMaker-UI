@@ -35,6 +35,7 @@ export interface IInvoiceFields {
   shipping?: number;
   amount_paid?: number;
   due_balance?: number;
+  deleted_at?: string;
 }
 
 export interface IInvoice extends IInvoiceFields {

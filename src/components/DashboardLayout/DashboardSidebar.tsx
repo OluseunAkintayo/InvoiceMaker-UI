@@ -1,11 +1,10 @@
+import React from "react";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 import { Send, CheckCircle, LogOut, Trash, BarChart2, FileText, User, Loader } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
 import axios, { AxiosError, AxiosRequestConfig } from "axios";
-import { useToast } from "@/hooks/use-toast";
-import React from "react";
 
 const menuItems = [
   { title: "Overview", icon: BarChart2, path: "/dashboard" },
@@ -18,7 +17,6 @@ const token = sessionStorage.getItem('token');
 
 export function DashboardSidebar() {
   const [loading, setLoading] = React.useState<boolean>(false);
-  const toast = useToast().toast;
   const logout = async () => {
     setLoading(true);
     const options: AxiosRequestConfig = {
@@ -30,16 +28,14 @@ export function DashboardSidebar() {
     }
     try {
       await axios.request(options);
-      window.location.replace("/auth/login");
+      sessionStorage.removeItem("user_id");
+      sessionStorage.removeItem("email");
+      sessionStorage.removeItem("token");
+      sessionStorage.removeItem("url");
+      setTimeout(() => window.location.replace("/auth/login"), 2000);
     } catch (error) {
       const err = error as AxiosError;
       console.log(err);
-      toast({
-        title: "Error " + err.status,
-        description: "Error logging out",
-        variant: "destructive"
-      });
-      // setLoading(false);
       window.location.replace("/auth/login");
     }
   }
