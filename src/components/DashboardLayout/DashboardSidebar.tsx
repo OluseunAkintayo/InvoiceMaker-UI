@@ -46,7 +46,7 @@ export function DashboardSidebar() {
           <SidebarGroupLabel className="h-12 border-b border-slate-300 rounded-none m-0 p-0">
             <div className="flex items-center justify-center">
               <FileText className="h-6 w-6" />
-              <span className="ml-2 text-xl font-bold">InvoiceMaker</span>
+              <span className="ml-2 text-xl font-bold">InvoiceGen</span>
             </div>
           </SidebarGroupLabel>
           <SidebarGroupContent className="py-2">

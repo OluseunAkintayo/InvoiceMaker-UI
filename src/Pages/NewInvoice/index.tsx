@@ -48,7 +48,7 @@ const NewInvoice = () => {
     biller_name: yup.string().required("Biller name is required"),
     biller_address: yup.string().required("Biller address is required"),
     biller_email: yup.string().required("Biller email is required"),
-    customer_name: yup.string().required("Customer name is required"),
+    customer_name: yup.string().required("Client name is required"),
     customer_address: yup.string(),
     customer_email: yup.string().email("Invalid email input"),
     bill_date: yup.date().typeError("Invalid date").required("Required"),
@@ -439,7 +439,7 @@ const NewInvoice = () => {
             </div>
             <div className="py-8 flex justify-end space-x-4">
               <Button type="submit" className="px-8 h-12 w-full sm:w-[144px]" disabled={loading}>
-                {loading ? <Loader className="animate-spin" /> : <><FileText className="mr-1" /> Download</>}
+                {loading ? <Loader className="animate-spin" /> : <><FileText /> Download</>}
               </Button>
             </div>
           </div>
