@@ -123,7 +123,6 @@ const DeleteModal = ({ open, close, invoiceId }: IView) => {
     }
   }
 
-
   return (
     <AlertDialog open={open} onOpenChange={close}>
       <AlertDialogContent className="max-w-[900px] h-[90vh] overflow-y-auto">

@@ -68,8 +68,6 @@ const DeletedInvoices = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  console.log({ deletedInvoices });
-
   return (
     <DashboardLayout>
       <section className="p-4">

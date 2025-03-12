@@ -79,7 +79,6 @@ const Dashboard = () => {
         return;
       }
       setLoading(false);
-      console.log(res);
     } catch (error) {
       const err = error as AxiosError;
       if(err.status === 401) {

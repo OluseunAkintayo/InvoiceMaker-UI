@@ -138,7 +138,6 @@ const NewInvoice = () => {
     if (file) {
       if (file.name.endsWith(".jpeg") || file.name.endsWith(".jpg") || file.name.endsWith(".png") || file.name.endsWith(".webp")) {
         setValue("logo", URL.createObjectURL(file));
-        console.log(URL.createObjectURL(file));
         return;
       }
       alert("Image format not supported");
@@ -148,10 +147,6 @@ const NewInvoice = () => {
 
   React.useEffect(() => { window.scrollTo(0, 0) }, []);
 
-  React.useEffect(() => {
-    const url = window.location.pathname;
-    console.log({ url });
-  }, []);
 
   return (
     <section>
@@ -432,9 +427,13 @@ const NewInvoice = () => {
               </div>
               <div className="mt-8 w-full space-y-2 block sm:hidden">
                 <Label htmlFor="notes" className="text-slate-500 font-semibold">Notes</Label>
-                <Textarea {...register("notes", {
-                  onBlur: e => sessionStorage.setItem("notes", e.target.value)
-                })} id="notes" placeholder="Enter additional notes" className="resize-none" />
+                <Textarea
+                  {...register("notes", {
+                    onBlur: e => sessionStorage.setItem("notes", e.target.value),
+                    onChange: e => setValue("notes", e.target.value)
+                  })}
+                  id="notes" placeholder="Enter additional notes" className="resize-none"
+                />
               </div>
             </div>
             <div className="py-8 flex justify-end space-x-4">
