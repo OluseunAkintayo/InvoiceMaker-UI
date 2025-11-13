@@ -100,7 +100,7 @@ export const PrintComponent = ({ invoiceFields, total, invoiceItems }: IPrintCom
         </div>
         <div>
           <h3 className="font-bold text-slate-700 py-4">Notes</h3>
-          <p>{invoiceFields.notes}</p>
+          <pre>{invoiceFields.notes}</pre>
         </div>
       </div>
   )
