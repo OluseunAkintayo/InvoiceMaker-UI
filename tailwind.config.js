@@ -8,6 +8,10 @@ export default {
     "./src/**/*.{ts,tsx}",
   ],
   prefix: "",
+  // Only apply hover: styles on devices that can actually hover (no sticky hover on touch).
+  future: {
+    hoverOnlyWhenSupported: true,
+  },
   theme: {
   	container: {
   		center: true,
@@ -18,6 +22,20 @@ export default {
   	},
   	extend: {
   		colors: {
+  			// Invoice builder palette: neutral ink + a single green accent
+  			ink: {
+  				DEFAULT: '#0c0d0f',
+  				2: '#3b3f46',
+  				3: '#6b7079',
+  				4: '#8b9098'
+  			},
+  			canvas: '#f4f5f6',
+  			mint: {
+  				DEFAULT: '#0e9f6e',
+  				ink: '#06603f',
+  				soft: '#e3f6ee'
+  			},
+  			danger: '#c42b2b',
   			border: 'hsl(var(--border))',
   			input: 'hsl(var(--input))',
   			ring: 'hsl(var(--ring))',
