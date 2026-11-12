@@ -1,0 +1,150 @@
+@import "@fontsource-variable/geist";
+@import "@fontsource-variable/geist-mono";
+
+/*
+ * Scope for the invoice builder. index.css sets Montserrat/Lato on h1-h6, p,
+ * span, td and label directly, so descendants must opt back into the inherited
+ * font. The .ib class also sits on the invoice paper itself, because html2pdf
+ * clones that element out of the page before rendering it.
+ */
+.ib {
+  font-family: "Geist Variable", system-ui, -apple-system, sans-serif;
+  color: #0c0d0f;
+  -webkit-font-smoothing: antialiased;
+  --ib-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ib-ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.ib :is(h1, h2, h3, h4, h5, h6, p, span, td, th, label) {
+  font-family: inherit;
+}
+
+.ib .tnum,
+.ib :is(span, td, p).tnum {
+  font-family: "Geist Mono Variable", ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Pressable elements confirm the press immediately. */
+.ib-press {
+  transition: transform 140ms var(--ib-ease-out), background-color 150ms ease,
+    color 150ms ease, box-shadow 150ms ease, border-color 150ms ease;
+}
+.ib-press:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+/* One orchestrated entrance on load, then stillness. */
+@keyframes ib-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.ib-enter {
+  opacity: 0;
+  animation: ib-rise 600ms var(--ib-ease-out) forwards;
+}
+
+/* Translucent chrome, with a solid fallback. */
+.ib-glass {
+  background: rgba(244, 245, 246, 0.72);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+
+/*
+ * Date inputs. iOS Safari draws an empty <input type="date"> with no text at all
+ * and ignores width:100% unless the native appearance is removed, so we take
+ * over the rendering: no native chrome, left-aligned value, and our own
+ * placeholder + calendar icon (see DateInput in index.tsx).
+ */
+.ib-date {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  line-height: 40px;
+  position: relative;
+}
+.ib-date::-webkit-date-and-time-value {
+  text-align: left;
+  margin: 0;
+  min-height: 1.5em;
+}
+/* Chrome/Edge: stretch the invisible picker button over the whole field, so a
+   tap anywhere opens the calendar (our icon replaces the native one). */
+.ib-date::-webkit-calendar-picker-indicator {
+  position: absolute;
+  inset: 0;
+  width: auto;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+/* While empty and not focused, hide the browser's own "dd/mm/yyyy" text so it
+   doesn't sit underneath our placeholder. */
+.ib-date[data-empty="true"]:not(:focus) {
+  color: transparent;
+}
+.ib-date[data-empty="true"]:not(:focus)::-webkit-datetime-edit {
+  color: transparent;
+}
+
+/* Dropdowns grow out of the field they belong to. */
+@keyframes ib-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.ib-pop {
+  animation: ib-pop 160ms var(--ib-ease-out);
+}
+
+/* Bottom sheet uses an iOS-like drawer curve. */
+.ib-sheet[data-state="open"],
+.ib-sheet[data-state="closed"] {
+  animation-timing-function: var(--ib-ease-drawer);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ib-enter {
+    animation: none;
+    opacity: 1;
+  }
+  .ib-press:active:not(:disabled) {
+    transform: none;
+  }
+  .ib-pop {
+    animation: none;
+  }
+  /* Replace the slide with a short cross-fade (tailwindcss-animate vars). */
+  .ib-sheet[data-state="open"],
+  .ib-sheet[data-state="closed"] {
+    --tw-enter-translate-y: 0 !important;
+    --tw-exit-translate-y: 0 !important;
+    --tw-enter-opacity: 0;
+    --tw-exit-opacity: 0;
+    animation-duration: 200ms !important;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .ib-glass {
+    background: #f4f5f6;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
